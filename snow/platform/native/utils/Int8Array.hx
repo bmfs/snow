@@ -1,105 +1,44 @@
 package snow.platform.native.utils;
 
+/**
+    Copyright Sven Bergström 2014
+    Created for snow https://github.com/underscorediscovery/snow
+    License MIT
+**/
 
-class Int8Array extends ArrayBufferView implements ArrayAccess<Int> {
+import snow.platform.native.utils.ArrayBufferView;
+import snow.utils.TypedArrayType;
+
+using snow.platform.native.utils.ArrayBufferViewIO;
 
 
-    public var BYTES_PER_ELEMENT (default, null) : Int;
-    public var length (default, null) : Int;
+@:forward()
+@:arrayAccess
+abstract Int8Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
 
+    public var length (get, never):Int;
 
-    public function new( bufferOrArray:Dynamic, start:Int = 0, length:Null<Int> = null ) {
+    @:generic
+    public inline function new<T_i8_new>( opt:T_i8_new, byteOffset:Int = 0, len:Null<Int> = null) {
 
-        BYTES_PER_ELEMENT = 1;
-
-        if (Std.is(bufferOrArray, Int)) {
-
-            super(Std.int(bufferOrArray));
-            this.length = bufferOrArray;
-
-        } else if (Std.is(bufferOrArray, Array)) {
-
-            var ints:Array<Int> = bufferOrArray;
-            this.length = (length != null) ? length : ints.length - start;
-            super(this.length);
-
-            #if !cpp
-            buffer.position = 0;
-            #end
-
-            for (i in 0...this.length) {
-
-                #if cpp
-                untyped __global__.__hxcpp_memory_set_byte(bytes, i, ints[i + start]);
-                #else
-                buffer.writeByte(ints[i + start]);
-                #end
-
-            }
-
-        } else if (Std.is(bufferOrArray, Int8Array)) {
-
-            var ints:Int8Array = bufferOrArray;
-            this.length = (length != null) ? length : ints.length - start;
-            super(this.length);
-
-            #if !cpp
-            buffer.position = 0;
-            #end
-
-            for (i in 0...this.length) {
-
-                #if cpp
-                untyped __global__.__hxcpp_memory_set_byte(bytes, i, ints[i + start]);
-                #else
-                buffer.writeByte(ints[i + start]);
-                #end
-
-            }
-
-        } else {
-
-            super(bufferOrArray, start, length);
-            this.length = byteLength;
-
-        }
+        this = new ArrayBufferView( TypedArrayType.Int8 );
+        this.construct(opt, byteOffset, len);
 
     } //new
 
-    public function set( bufferOrArray:Dynamic, offset:Int = 0 ) {
+//Public API
 
-        if (Std.is(bufferOrArray, Array)) {
+        //this is required to determine the underlying type in ArrayBufferView
+    public function subarray( begin:Int, end:Null<Int> = null) : Int8Array return this.subarray(begin, end);
+    public function set( ?view:ArrayBufferView, ?array:Array<Int>, ?offset:Int = 0) return this.set(view, cast array, offset);
 
-            var ints:Array<Int> = bufferOrArray;
+//Internal
 
-            for (i in 0...ints.length) {
-                setInt8(i + offset, ints[i]);
-            }
+    function get_length() return this.length;
 
-        } else if (Std.is(bufferOrArray, Int8Array)) {
-
-            var ints:Int8Array = bufferOrArray;
-
-            for (i in 0...ints.length) {
-                setInt8(i + offset, ints[i]);
-            }
-
-        } else {
-
-            throw "Invalid input buffer";
-
-        }
-
-    } //set
-
-    public function subarray( start:Int, end:Null<Int> = null ) : Int8Array {
-
-        end = (end == null) ? length : end;
-        return new Int8Array(buffer, start, end - start);
-
-    } //subarray
-
-    @:noCompletion @:keep inline public function __get( index:Int ):Int { return getInt8(index); }
-    @:noCompletion @:keep inline public function __set( index:Int, value:Int ) { setInt8(index, value); }
+    @:noCompletion @:arrayAccess
+    public inline function __get(idx:Int) return this.getInt8(idx);
+    @:noCompletion @:arrayAccess
+    public inline function __set(idx:Int, val:Int) return this.setInt8(idx, val);
 
 } //Int8Array

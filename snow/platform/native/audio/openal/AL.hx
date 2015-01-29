@@ -341,7 +341,7 @@ class AL {
 //buffer data and state
 
     public static function bufferData(buffer:Int, format:Int, data:Float32Array, size:Int, freq:Int) : Void {
-        alhx_BufferData(buffer, format, data.getByteBuffer(), size, freq);
+        alhx_BufferData(buffer, format, data.buffer.getByteBuffer(), size, freq);
     }
 
     public static function bufferf(buffer:Int, param:Int, value:Float) : Void {

@@ -1,112 +1,44 @@
 package snow.platform.native.utils;
 
+/**
+    Copyright Sven Bergström 2014
+    Created for snow https://github.com/underscorediscovery/snow
+    License MIT
+**/
 
-class Int16Array extends ArrayBufferView implements ArrayAccess<Int> {
+import snow.platform.native.utils.ArrayBufferView;
+import snow.utils.TypedArrayType;
 
-    public var BYTES_PER_ELEMENT (default, null) : Int;
-    public var length (default, null) : Int;
+using snow.platform.native.utils.ArrayBufferViewIO;
 
-    public function new( bufferOrArray:Dynamic, start:Int = 0, length:Null<Int> = null ) {
 
-        BYTES_PER_ELEMENT = 2;
+@:forward()
+@:arrayAccess
+abstract Int16Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
 
-        if (Std.is(bufferOrArray, Int)) {
+    public var length (get, never):Int;
 
-            super(Std.int(bufferOrArray) << 1);
-            this.length = bufferOrArray;
+    @:generic
+    public inline function new<T_i16_new>( opt:T_i16_new, byteOffset:Int = 0, len:Null<Int> = null) {
 
-        } else if (Std.is(bufferOrArray, Array)) {
+        this = new ArrayBufferView( TypedArrayType.Int16 );
+        this.construct(opt, byteOffset, len);
 
-            var ints:Array<Int> = bufferOrArray;
-            this.length = (length != null) ? length : ints.length - start;
-            super(this.length << 1);
+    } //new
 
-            #if !cpp
-            buffer.position = 0;
-            #end
+//Public API
 
-            for (i in 0...this.length) {
+        //this is required to determine the underlying type in ArrayBufferView
+    public function subarray( begin:Int, end:Null<Int> = null) : Int16Array return this.subarray(begin, end);
+    public function set( ?view:ArrayBufferView, ?array:Array<Int>, ?offset:Int = 0) return this.set(view, cast array, offset);
 
-                #if cpp
-                untyped __global__.__hxcpp_memory_set_i16(bytes, (i << 1), ints[i + start]);
-                #else
-                buffer.writeShort(ints[i + start]);
-                #end
+//Internal
 
-            }
+    function get_length() return this.length;
 
-        } else if (Std.is(bufferOrArray, Int16Array)) {
-
-            var ints:Int16Array = bufferOrArray;
-            this.length = (length != null) ? length : ints.length - start;
-            super(this.length << 1);
-
-            #if !cpp
-            buffer.position = 0;
-            #end
-
-            for (i in 0...this.length) {
-
-                #if cpp
-                untyped __global__.__hxcpp_memory_set_i16(bytes, (i << 1), ints[i + start]);
-                #else
-                buffer.writeShort(ints[i + start]);
-                #end
-
-            }
-
-        } else {
-
-            super(bufferOrArray, start, (length != null) ? length << 1 : null);
-
-            if ((byteLength & 0x01) > 0) {
-                throw "Invalid array size";
-            }
-
-            this.length = byteLength >> 1;
-
-            if ((this.length << 1) != byteLength) {
-                throw "Invalid length multiple";
-            }
-
-        }
-
-    }
-
-    public function set( bufferOrArray:Dynamic, offset:Int = 0 ) {
-
-        if (Std.is(bufferOrArray, Array)) {
-
-            var ints:Array<Int> = bufferOrArray;
-
-            for (i in 0...ints.length) {
-                setInt16((i + offset) << 1, ints[i]);
-            }
-
-        } else if (Std.is(bufferOrArray, Int16Array)) {
-
-            var ints:Int16Array = bufferOrArray;
-
-            for (i in 0...ints.length) {
-                setInt16((i + offset) << 1, ints[i]);
-            }
-
-        } else {
-
-            throw "Invalid input buffer";
-
-        }
-
-    }
-
-    public function subarray( start:Int, end:Null<Int> = null ) : Int16Array {
-
-        end = (end == null) ? length : end;
-        return new Int16Array(buffer, start << 1, end - start);
-
-    }
-
-    @:noCompletion @:keep inline public function __get( index:Int ):Int { return getInt16(index << 1); }
-    @:noCompletion @:keep inline public function __set( index:Int, value:Int ) { setInt16(index << 1, value); }
+    @:noCompletion @:arrayAccess
+    public inline function __get(idx:Int) return this.getInt16(idx);
+    @:noCompletion @:arrayAccess
+    public inline function __set(idx:Int, val:Int) return this.setInt16(idx, val);
 
 } //Int16Array

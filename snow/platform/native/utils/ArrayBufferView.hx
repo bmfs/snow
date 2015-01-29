@@ -1,239 +1,207 @@
 package snow.platform.native.utils;
 
+using snow.platform.native.utils.ArrayBufferViewIO;
+import snow.utils.TypedArrayType;
 
-import snow.platform.native.utils.ByteArray;
-import snow.utils.IMemoryRange;
+/**
+    Copyright Sven Bergström 2014
+    Created for snow https://github.com/underscorediscovery/snow
+    License MIT
+**/
 
-#if cpp
-    import haxe.io.BytesData;
-#end
+class ArrayBufferView {
 
-class ArrayBufferView implements IMemoryRange {
+    public var type = TypedArrayType.None;
+    public var BYTES_PER_ELEMENT (default,null): Int = 1;
+    public var buffer:ArrayBuffer;
+    public var byteOffset:Int;
+    public var length:Int;
 
-    public var buffer (default, null) : ByteArray;
-    public var byteOffset (default, null) : Int;
-    public var byteLength (default, null) : Int;
 
-    #if cpp
-        var bytes : BytesData;
-    #end
+    @:allow(snow.platform.native.utils)
+    inline function new(in_type:TypedArrayType) {
 
-    inline function new(lengthOrBuffer:Dynamic, byteOffset:Int = 0, length:Null<Int> = null ) {
+        type = in_type;
 
-        if (Std.is(lengthOrBuffer, Int)) {
+        BYTES_PER_ELEMENT =
+            switch(type) {
+                case Int8:          1;
+                case UInt8:         1;
+                case UInt8Clamped:  1;
+                case Int16:         2;
+                case UInt16:        2;
+                case Int32:         4;
+                case UInt32:        4;
+                case Float32:       4;
+                case _: 1;
+            };
 
-            byteLength = Std.int(lengthOrBuffer);
-            this.byteOffset = 0;
-            buffer = new ArrayBuffer(Std.int(lengthOrBuffer));
+    } //new
+
+//Public APIs
+
+    @:allow(snow.platform.native.utils)
+    inline function set<T_arr>( ?view:ArrayBufferView, ?array:Array<T_arr>, ?offset:Int = 0) : Void {
+
+        if(view != null && array == null) {
+            buffer.blit( to_byte_len(offset), view.buffer, view.byteOffset, view.buffer.byteLength );
+        } else if(array != null) {
+            setFromArray(array, offset);
+        } // view != null
+
+    } //set
+
+//Internal TypedArray api
+
+    @:allow(snow.platform.native.utils)
+    @:generic inline function subarray<T_subarray>( begin:Int, end:Null<Int> = null ) : T_subarray {
+
+        if (end == null) end == length;
+        var len = end - begin;
+        var byte_offset = to_byte_len(begin);
+
+        var array : ArrayBufferView =
+            switch(type) {
+                case Int8:          new         Int8Array(buffer, byte_offset, len);
+                case Int16:         new        Int16Array(buffer, byte_offset, len);
+                case Int32:         new        Int32Array(buffer, byte_offset, len);
+                case UInt8:         new        UInt8Array(buffer, byte_offset, len);
+                case UInt16:        new       UInt16Array(buffer, byte_offset, len);
+                case UInt32:        new       UInt32Array(buffer, byte_offset, len);
+                case Float32:       new      Float32Array(buffer, byte_offset, len);
+                case UInt8Clamped:  new UInt8ClampedArray(buffer, byte_offset, len);
+
+                case None: null;
+                case _: null;
+            }
+
+        return cast array;
+
+    } //subarray
+
+        //cannot inline this function!
+    @:allow(snow.platform.native.utils)
+    @:generic function construct<T_construct>( cn_opt:T_construct, byte_offset:Int = 0, len:Null<Int> = null) {
+
+        if( Std.is(cn_opt,Int) ) {
+
+            create_from_length(cast cn_opt);
 
         } else {
 
-            if (Type.getClass(lengthOrBuffer) == haxe.io.Bytes) {
-                throw "ArrayBuffer (i.e ByteArray) is required";
-            }
+            switch( Type.getClass(cn_opt) ) {
 
-            buffer = lengthOrBuffer;
+                case ArrayBuffer:
+                    create_from_buffer(cast cn_opt, byte_offset, len);
 
-            if (buffer == null) {
-                throw "Invalid input buffer";
-            }
+                case ArrayBufferView:
+                    create_from_typedarray(cast cn_opt);
 
-            this.byteOffset = byteOffset;
+                case Array:
+                    create_from_array(cast cn_opt);
 
-            if (byteOffset > buffer.length) {
-                throw "Invalid starting position";
-            }
+                default: throw "Invalid Arguments for new " + this.type;
 
-            if (length == null) {
-                byteLength = buffer.length - byteOffset;
-            } else {
-                byteLength = length;
+            } //switch
 
-                if (byteLength + byteOffset > buffer.length) {
-                    throw "Invalid buffer length";
-                }
-            }
+        } //is Int
+
+    } //construct
+
+    @:allow(snow.platform.native.utils)
+    inline function create_from_length( len:Int ) {
+
+        if(len < 0) len = 0;
+        var byte_len = to_byte_len(len);
+
+            //:note:spec: also has
+        //len = min(len,maxint);
+
+        byteOffset = 0;
+        length = len;
+        buffer = new ArrayBuffer( byte_len );
+
+    } //(length)
+
+    @:allow(snow.platform.native.utils)
+    inline function create_from_typedarray( view:ArrayBufferView ) {
+
+        var viewByteLength = view.buffer.byteLength;
+        var srcByteOffset = view.byteOffset;
+        var srcLength = viewByteLength - srcByteOffset;
+        var cloneLength = srcLength - srcByteOffset;
+
+            //new storage
+        buffer = new ArrayBuffer(cloneLength);
+        byteOffset = 0;
+        length = view.length;
+
+            //same species, so just blit the data
+            //in other words, it shares the same bytes per element etc
+        if(view.type == type) {
+
+            buffer.blit( 0, view.buffer, srcByteOffset, cloneLength );
+
+        } else {
+
+            throw "UnimplementedError: data type conversion from TypedArray is pending";
+
+        } //type != type
+
+    } //(typedArray)
+
+    @:allow(snow.platform.native.utils)
+    inline function create_from_buffer( in_buffer:ArrayBuffer, ?in_byteOffset:Int = 0, len:Null<Int> = null ) {
+
+        if(in_byteOffset < 0)
+            throw 'RangeError: byteOffset < 0, given:$in_byteOffset';
+        if(in_byteOffset % BYTES_PER_ELEMENT != 0)
+            throw 'RangeError: byteOffset must be divisible by element size($BYTES_PER_ELEMENT)';
+
+        var bufferByteLength = in_buffer.byteLength;
+        var newByteLength = bufferByteLength;
+
+        if( len == null ) {
+
+            newByteLength = bufferByteLength - in_byteOffset;
+
+            if(bufferByteLength % BYTES_PER_ELEMENT != 0)
+                throw 'RangeError: given buffer byteLength is not divisible by element size($BYTES_PER_ELEMENT), given:$bufferByteLength';
+            if(newByteLength < 0)
+                throw 'RangeError: byte length from byteOffset would become negative';
+
+        } else {
+
+            newByteLength = len * BYTES_PER_ELEMENT;
+
+            var newRange = in_byteOffset + newByteLength;
+            if( newRange > bufferByteLength )
+                throw 'RangeError: range from byteOffset+len out of range (given byte range=`$newRange`, buffer byteLength=`$bufferByteLength`';
 
         }
 
-        buffer.bigEndian = false;
+        buffer = in_buffer;
+        byteOffset = in_byteOffset;
+        length = Std.int(newByteLength / BYTES_PER_ELEMENT);
 
-        #if cpp
-            bytes = buffer.getData();
-        #end
+    } //(buffer [, byteOffset [, length]])
 
-    }
 
-    public inline function getByteBuffer() : ByteArray {
+    @:allow(snow.platform.native.utils)
+    inline function create_from_array( array:Array<Float> ) {
 
-        return buffer;
+        buffer = new ArrayBuffer(to_byte_len(array.length));
+        byteOffset = 0;
+        length = array.length;
 
-    }
+        setFromArray(array);
 
-    public inline function getLength() : Int {
+    } //array
 
-        return byteLength;
+    inline function to_byte_len( elem_len:Int ) : Int {
 
-    }
+        return elem_len * BYTES_PER_ELEMENT;
 
-    public inline function getStart() : Int {
-
-        return byteOffset;
-
-    }
-
-    inline public function getInt8( position:Int ) : Int {
-
-        #if cpp
-            return untyped __global__.__hxcpp_memory_get_byte(bytes, position + byteOffset);
-        #else
-            buffer.position = position + byteOffset;
-            return buffer.readByte();
-        #end
-
-    }
-
-    inline public function setInt8( position:Int, value:Int ) {
-
-        #if cpp
-            untyped __global__.__hxcpp_memory_set_byte(bytes, position + byteOffset, value);
-        #else
-            buffer.position = position + byteOffset;
-            buffer.writeByte(value);
-        #end
-
-    }
-
-    inline public function getUInt8( position:Int ) : Int {
-
-        #if cpp
-            return untyped __global__.__hxcpp_memory_get_byte(bytes, position + byteOffset) & 0xff;
-        #else
-            buffer.position = position + byteOffset;
-            return buffer.readUnsignedByte();
-        #end
-
-    }
-
-    inline public function setUInt8( position:Int, value:Int ) {
-
-        #if cpp
-            untyped __global__.__hxcpp_memory_set_byte(bytes, position + byteOffset, value);
-        #else
-            buffer.position = position + byteOffset;
-            buffer.writeByte(value);
-        #end
-
-    }
-
-    inline public function getInt16( position:Int ) : Int {
-
-        #if cpp
-            untyped return __global__.__hxcpp_memory_get_i16(bytes, position + byteOffset);
-        #else
-            buffer.position = position + byteOffset;
-            return buffer.readShort();
-        #end
-
-    }
-
-    inline public function setInt16( position:Int, value:Int ) {
-
-        #if cpp
-            untyped __global__.__hxcpp_memory_set_i16(bytes, position + byteOffset, value);
-        #else
-            buffer.position = position + byteOffset;
-            buffer.writeShort(Std.int(value));
-        #end
-
-    }
-
-    inline public function getUInt16( position:Int ) : Int {
-
-        #if cpp
-            untyped return __global__.__hxcpp_memory_get_ui16(bytes, position + byteOffset) & 0xffff;
-        #else
-            buffer.position = position + byteOffset;
-            return buffer.readUnsignedShort();
-        #end
-
-    }
-
-    inline public function setUInt16( position:Int, value:Int ) {
-
-        #if cpp
-            untyped __global__.__hxcpp_memory_set_ui16(bytes, position + byteOffset, value);
-        #else
-            buffer.position = position + byteOffset;
-            buffer.writeShort(Std.int(value));
-        #end
-
-    }
-
-    inline public function getInt32( position:Int ) : Int {
-
-        #if cpp
-            untyped return __global__.__hxcpp_memory_get_i32(bytes, position + byteOffset);
-        #else
-            buffer.position = position + byteOffset;
-            return buffer.readInt();
-        #end
-
-    }
-
-    inline public function setInt32( position:Int, value:Int ) {
-
-        #if cpp
-            untyped __global__.__hxcpp_memory_set_i32(bytes, position + byteOffset, value);
-        #else
-            buffer.position = position + byteOffset;
-            buffer.writeInt(Std.int(value));
-        #end
-
-    }
-
-    inline public function getUInt32( position:Int ) : Int {
-
-        #if cpp
-            untyped return __global__.__hxcpp_memory_get_ui32(bytes, position + byteOffset);
-        #else
-            buffer.position = position + byteOffset;
-            return buffer.readUnsignedInt();
-        #end
-
-    }
-
-    inline public function setUInt32( position:Int, value:Int ) {
-
-        #if cpp
-            untyped __global__.__hxcpp_memory_set_ui32(bytes, position + byteOffset, value);
-        #else
-            buffer.position = position + byteOffset;
-            buffer.writeUnsignedInt(Std.int(value));
-        #end
-
-    }
-
-    inline public function getFloat32( position:Int ) : Float {
-
-        #if cpp
-            untyped return __global__.__hxcpp_memory_get_float(bytes, position + byteOffset);
-        #else
-            buffer.position = position + byteOffset;
-            return buffer.readFloat();
-        #end
-
-    }
-
-    inline public function setFloat32( position:Int, value:Float ) {
-
-        #if cpp
-            untyped __global__.__hxcpp_memory_set_float(bytes, position + byteOffset, value);
-        #else
-            buffer.position = position + byteOffset;
-            buffer.writeFloat(value);
-        #end
-
-    }
+    } //length_to_bytelength
 
 } //ArrayBufferView

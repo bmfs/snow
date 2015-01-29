@@ -1,118 +1,52 @@
 package snow.platform.native.utils;
 
-    /** Note that this class is included for completeness and perhaps doesn't yield
-        the performance benefits one might assume by the smaller size. The difference between UInt8Array and
-        Uint8Clamped array is simply that a clamp is applied to any value added into the array,
-        such that the values never go below 0 and above 255.
-     */
-class UInt8ClampedArray extends ArrayBufferView implements ArrayAccess<Int> {
+/**
+    Copyright Sven Bergström 2014
+    Created for snow https://github.com/underscorediscovery/snow
+    License MIT
+**/
 
 
-    public var BYTES_PER_ELEMENT (default, null) : Int;
-    public var length (default, null) : Int;
 
+/**
+    Note that this class is included for TypedArrays spec completeness and perhaps doesn't yield
+    the performance benefits one might assume by the 'clamped' smaller size. The difference between UInt8Array and
+    Uint8Clamped array is simply that a clamp is applied to any value added or set into the array,
+    such that the values never go below 0 and above 255. No other storage changes happen.
+**/
 
-    public function new( bufferOrArray:Dynamic, start:Int = 0, length:Null<Int> = null ) {
+import snow.platform.native.utils.ArrayBufferView;
+import snow.utils.TypedArrayType;
 
-        BYTES_PER_ELEMENT = 1;
+using snow.platform.native.utils.ArrayBufferViewIO;
 
-        if (Std.is(bufferOrArray, Int)) {
+@:forward()
+@:arrayAccess
+abstract UInt8ClampedArray(ArrayBufferView) from ArrayBufferView to ArrayBufferView {
 
-            super(Std.int(bufferOrArray));
-            this.length = bufferOrArray;
+    public var length (get, never):Int;
 
-        } else if (Std.is(bufferOrArray, Array)) {
+    @:generic
+    public inline function new<T_ui8c_new>( opt:T_ui8c_new, byteOffset:Int = 0, len:Null<Int> = null) {
 
-            var ints:Array<Int> = bufferOrArray;
-            this.length = (length != null) ? length : ints.length - start;
-            super(this.length);
-
-            #if !cpp
-            buffer.position = 0;
-            #end
-
-            for (i in 0...this.length) {
-
-                var _clamped : Int = _clamp(ints[i + start]);
-
-                #if cpp
-                untyped __global__.__hxcpp_memory_set_byte(bytes, i, _clamped);
-                #else
-                buffer.writeByte(ints[i + start]);
-                #end
-
-            }
-
-        } else if (Std.is(bufferOrArray, UInt8ClampedArray)) {
-
-            var ints:UInt8ClampedArray = bufferOrArray;
-            this.length = (length != null) ? length : ints.length - start;
-            super(this.length);
-
-            #if !cpp
-            buffer.position = 0;
-            #end
-
-            for (i in 0...this.length) {
-
-                #if cpp
-                untyped __global__.__hxcpp_memory_set_byte(bytes, i, ints[i + start]);
-                #else
-                buffer.writeByte(ints[i + start]);
-                #end
-
-            }
-
-        } else {
-
-            super(bufferOrArray, start, length);
-            this.length = byteLength;
-
-        }
+        this = new ArrayBufferView( TypedArrayType.UInt8Clamped );
+        this.construct(opt, byteOffset, len);
 
     } //new
 
-    inline function _clamp(_in:Int) : Int {
+//Public API
 
-        _in = _in > 255 ? 255 : _in;
-        return _in < 0 ? 0 : _in;
+        //this is required to determine the underlying type in ArrayBufferView
+    public function subarray( begin:Int, end:Null<Int> = null) : UInt8ClampedArray return this.subarray(begin, end);
+    public function set( ?view:ArrayBufferView, ?array:Array<Int>, ?offset:Int = 0) return this.set(view, cast array, offset);
 
-    } //_clamp
+//Internal
 
-    public function set( bufferOrArray:Dynamic, offset:Int = 0 ) {
+    function get_length() return this.length;
 
-        if (Std.is(bufferOrArray, Array)) {
+    @:noCompletion @:arrayAccess
+    public inline function __get(idx:Int) return this.getUInt8(idx);
+    @:noCompletion @:arrayAccess
+    public inline function __set(idx:Int, val:UInt) return this.setUInt8Clamped(idx, val);
 
-            var ints:Array<Int> = bufferOrArray;
-
-            for (i in 0...ints.length) {
-                setUInt8(i + offset, _clamp(ints[i]));
-            }
-
-        } else if (Std.is(bufferOrArray, UInt8ClampedArray)) {
-
-            var ints:UInt8ClampedArray = bufferOrArray;
-
-            for (i in 0...ints.length) {
-                setUInt8(i + offset, _clamp(ints[i]));
-            }
-
-        } else {
-
-            throw "Invalid input buffer";
-
-        }
-
-    } //set
-
-    public function subarray( start:Int, end:Null<Int> = null ) : UInt8ClampedArray {
-
-        end = (end == null) ? length : end;
-        return new UInt8ClampedArray(buffer, start, end - start);
-
-    } //subarray
-
-    @:noCompletion @:keep inline public function __get( index:Int ):Int { return getUInt8(index); }
-    @:noCompletion @:keep inline public function __set( index:Int, value:Int ) { setUInt8(index, _clamp(value)); }
-
-} //UInt8Array
+} //UInt8ClampedArray

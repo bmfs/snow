@@ -3,7 +3,6 @@ package snow.platform.native.render.opengl;
 import snow.utils.ArrayBuffer;
 import snow.utils.ArrayBufferView;
 import snow.utils.Float32Array;
-import snow.utils.IMemoryRange;
 import snow.utils.Int32Array;
 
 import snow.utils.Libs;
@@ -683,14 +682,14 @@ class GL {
         snow_gl_blend_func_separate(srcRGB, dstRGB, srcAlpha, dstAlpha);
     }
 
-    public static function bufferData(target:Int, data:IMemoryRange, usage:Int):Void
+    public static function bufferData(target:Int, data:ArrayBufferView, usage:Int):Void
     {
-        snow_gl_buffer_data(target, data.getByteBuffer(), data.getStart(), data.getLength(), usage);
+        snow_gl_buffer_data(target, data.buffer.getByteBuffer(), data.byteOffset, data.buffer.byteLength, usage);
     }
 
-    public static function bufferSubData(target:Int, offset:Int, data:IMemoryRange ):Void
+    public static function bufferSubData(target:Int, offset:Int, data:ArrayBufferView ):Void
     {
-        snow_gl_buffer_sub_data( target, offset, data.getByteBuffer(), data.getStart(), data.getLength() );
+        snow_gl_buffer_sub_data( target, offset, data.buffer.getByteBuffer(), data.byteOffset, data.buffer.byteLength );
     }
 
     public static function checkFramebufferStatus(target:Int):Int
@@ -728,14 +727,14 @@ class GL {
         snow_gl_compile_shader(shader.id);
     }
 
-    public static function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:IMemoryRange):Void
+    public static function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:ArrayBufferView):Void
     {
-        snow_gl_compressed_tex_image_2d(target, level, internalformat, width, height, border, data == null ? null : data.getByteBuffer(), data == null ? null : data.getStart());
+        snow_gl_compressed_tex_image_2d(target, level, internalformat, width, height, border, data == null ? null : data.buffer.getByteBuffer(), data == null ? null : data.byteOffset);
     }
 
-    public static function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:IMemoryRange):Void
+    public static function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:ArrayBufferView):Void
     {
-        snow_gl_compressed_tex_sub_image_2d(target, level, xoffset, yoffset, width, height, format, data == null ? null : data.getByteBuffer(), data == null ? null : data.getStart());
+        snow_gl_compressed_tex_sub_image_2d(target, level, xoffset, yoffset, width, height, format, data == null ? null : data.buffer.getByteBuffer(), data == null ? null : data.byteOffset);
     }
 
     public static function copyTexImage2D(target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void
@@ -1094,7 +1093,7 @@ class GL {
 
     public static function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void
     {
-        snow_gl_read_pixels(x, y, width, height, format, type, pixels == null ? null : pixels.getByteBuffer(), pixels == null ? null : pixels.getStart());
+        snow_gl_read_pixels(x, y, width, height, format, type, pixels == null ? null : pixels.buffer.getByteBuffer(), pixels == null ? null : pixels.byteOffset);
     }
 
     public static function renderbufferStorage(target:Int, internalformat:Int, width:Int, height:Int):Void
@@ -1149,7 +1148,7 @@ class GL {
 
     public static function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ArrayBufferView):Void
     {
-        snow_gl_tex_image_2d(target, level, internalformat, width, height, border, format, type, pixels == null ? null : pixels.getByteBuffer(), pixels == null ? null : pixels.getStart());
+        snow_gl_tex_image_2d(target, level, internalformat, width, height, border, format, type, pixels == null ? null : pixels.buffer.getByteBuffer(), pixels == null ? null : pixels.byteOffset);
     }
 
     public static function texParameterf(target:Int, pname:Int, param:Float):Void
@@ -1164,7 +1163,7 @@ class GL {
 
     public static function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void
     {
-        snow_gl_tex_sub_image_2d(target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels.getByteBuffer(), pixels == null ? null : pixels.getStart());
+        snow_gl_tex_sub_image_2d(target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels.buffer.getByteBuffer(), pixels == null ? null : pixels.byteOffset);
     }
 
     public static function uniform1f(location:GLUniformLocation, x:Float):Void
@@ -1174,7 +1173,7 @@ class GL {
 
     public static function uniform1fv(location:GLUniformLocation, x:Float32Array):Void
     {
-        snow_gl_uniform1fv(location, x.getByteBuffer());
+        snow_gl_uniform1fv(location, x.buffer.getByteBuffer());
     }
 
     public static function uniform1i(location:GLUniformLocation, x:Int):Void
@@ -1184,7 +1183,7 @@ class GL {
 
     public static function uniform1iv(location:GLUniformLocation, v:Int32Array):Void
     {
-        snow_gl_uniform1iv(location, v.getByteBuffer());
+        snow_gl_uniform1iv(location, v.buffer.getByteBuffer());
     }
 
     public static function uniform2f(location:GLUniformLocation, x:Float, y:Float):Void
@@ -1194,7 +1193,7 @@ class GL {
 
     public static function uniform2fv(location:GLUniformLocation, v:Float32Array):Void
     {
-        snow_gl_uniform2fv(location, v.getByteBuffer());
+        snow_gl_uniform2fv(location, v.buffer.getByteBuffer());
     }
 
     public static function uniform2i(location:GLUniformLocation, x:Int, y:Int):Void
@@ -1204,7 +1203,7 @@ class GL {
 
     public static function uniform2iv(location:GLUniformLocation, v:Int32Array):Void
     {
-        snow_gl_uniform2iv(location, v.getByteBuffer());
+        snow_gl_uniform2iv(location, v.buffer.getByteBuffer());
     }
 
     public static function uniform3f(location:GLUniformLocation, x:Float, y:Float, z:Float):Void
@@ -1214,7 +1213,7 @@ class GL {
 
     public static function uniform3fv(location:GLUniformLocation, v:Float32Array):Void
     {
-        snow_gl_uniform3fv(location, v.getByteBuffer());
+        snow_gl_uniform3fv(location, v.buffer.getByteBuffer());
     }
 
     public static function uniform3i(location:GLUniformLocation, x:Int, y:Int, z:Int):Void
@@ -1224,7 +1223,7 @@ class GL {
 
     public static function uniform3iv(location:GLUniformLocation, v:Int32Array):Void
     {
-        snow_gl_uniform3iv(location, v.getByteBuffer());
+        snow_gl_uniform3iv(location, v.buffer.getByteBuffer());
     }
 
     public static function uniform4f(location:GLUniformLocation, x:Float, y:Float, z:Float, w:Float):Void
@@ -1234,7 +1233,7 @@ class GL {
 
     public static function uniform4fv(location:GLUniformLocation, v:Float32Array):Void
     {
-        snow_gl_uniform4fv(location, v.getByteBuffer());
+        snow_gl_uniform4fv(location, v.buffer.getByteBuffer());
     }
 
     public static function uniform4i(location:GLUniformLocation, x:Int, y:Int, z:Int, w:Int):Void
@@ -1244,22 +1243,22 @@ class GL {
 
     public static function uniform4iv(location:GLUniformLocation, v:Int32Array):Void
     {
-        snow_gl_uniform4iv(location, v.getByteBuffer());
+        snow_gl_uniform4iv(location, v.buffer.getByteBuffer());
     }
 
     public static function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool, v:Float32Array):Void
     {
-        snow_gl_uniform_matrix(location, transpose, v.getByteBuffer(), 2);
+        snow_gl_uniform_matrix(location, transpose, v.buffer.getByteBuffer(), 2);
     }
 
     public static function uniformMatrix3fv(location:GLUniformLocation, transpose:Bool, v:Float32Array):Void
     {
-        snow_gl_uniform_matrix(location, transpose, v.getByteBuffer(), 3);
+        snow_gl_uniform_matrix(location, transpose, v.buffer.getByteBuffer(), 3);
     }
 
     public static function uniformMatrix4fv(location:GLUniformLocation, transpose:Bool, v:Float32Array):Void
     {
-        snow_gl_uniform_matrix(location, transpose, v.getByteBuffer(), 4);
+        snow_gl_uniform_matrix(location, transpose, v.buffer.getByteBuffer(), 4);
     }
 
     public static function useProgram(program:GLProgram):Void
@@ -1279,7 +1278,7 @@ class GL {
 
     public static function vertexAttrib1fv(indx:Int, values:Float32Array):Void
     {
-        snow_gl_vertex_attrib1fv(indx, values.getByteBuffer());
+        snow_gl_vertex_attrib1fv(indx, values.buffer.getByteBuffer());
     }
 
     public static function vertexAttrib2f(indx:Int, x:Float, y:Float):Void
@@ -1289,7 +1288,7 @@ class GL {
 
     public static function vertexAttrib2fv(indx:Int, values:Float32Array):Void
     {
-        snow_gl_vertex_attrib2fv(indx, values.getByteBuffer());
+        snow_gl_vertex_attrib2fv(indx, values.buffer.getByteBuffer());
     }
 
     public static function vertexAttrib3f(indx:Int, x:Float, y:Float, z:Float):Void
@@ -1299,7 +1298,7 @@ class GL {
 
     public static function vertexAttrib3fv(indx:Int, values:Float32Array):Void
     {
-        snow_gl_vertex_attrib3fv(indx, values.getByteBuffer());
+        snow_gl_vertex_attrib3fv(indx, values.buffer.getByteBuffer());
     }
 
     public static function vertexAttrib4f(indx:Int, x:Float, y:Float, z:Float, w:Float):Void
@@ -1309,7 +1308,7 @@ class GL {
 
     public static function vertexAttrib4fv(indx:Int, values:Float32Array):Void
     {
-        snow_gl_vertex_attrib4fv(indx, values.getByteBuffer());
+        snow_gl_vertex_attrib4fv(indx, values.buffer.getByteBuffer());
     }
 
     public static function vertexAttribPointer(indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void
