@@ -15,7 +15,7 @@
     },
 
     if:{
-        "mac || windows": {
+        "mac || windows && !snow_dynamic_link": {
             build:{
                 hxcpp: {
                     flags:['-Dstatic_link']
