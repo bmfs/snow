@@ -267,7 +267,7 @@ import snow.Log._verboser;
                     width_actual : png_header.width,
                     height_actual : png_header.height,
                     bpp_source : png_header.colbits,
-                    data : Uint8Array.fromBuffer(png_bytes)
+                    data : Uint8Array.fromArray(cast png_bytes.getData())
                 }
             #else
 
