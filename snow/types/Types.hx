@@ -2,7 +2,7 @@ package snow.types;
 
 import snow.Snow;
 import snow.utils.ByteArray;
-import snow.utils.UInt8Array;
+import snow.io.typedarray.Uint8Array;
 
 import snow.assets.AssetImage;
 import snow.assets.AssetText;
@@ -196,7 +196,7 @@ typedef ImageInfo = {
         /** source bits per pixel */
     var bpp_source : Int;
         /** image data */
-    var data : UInt8Array;
+    var data : Uint8Array;
 
 } //ImageInfo
 

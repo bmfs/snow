@@ -1,6 +1,6 @@
-package typedarray;
+package snow.io.typedarray;
 
-import typedarray.TypedArrayType;
+import snow.io.typedarray.TypedArrayType;
 
 class ArrayBufferView {
 
@@ -11,7 +11,7 @@ class ArrayBufferView {
     public var byteLength:Int;
     public var length:Int;
 
-    @:allow(typedarray)
+    @:allow(snow.io.typedarray)
     #if !no_typedarray_inline inline #end
     function new( ?elements:Null<Int> = null, in_type:TypedArrayType) {
 
@@ -41,7 +41,7 @@ class ArrayBufferView {
 
 //Constructor helpers
 
-    @:allow(typedarray)
+    @:allow(snow.io.typedarray)
     #if !no_typedarray_inline inline #end
     function initTypedArray( view:ArrayBufferView ) {
 
@@ -52,7 +52,11 @@ class ArrayBufferView {
         var elementSize = bytesPerElement;
 
         #if js
-            buffer = initJSArray(untyped view.buffer.b);
+            if(Std.is(view, ArrayBufferView)) {
+                buffer = initJSArray(untyped view.buffer.b);
+            } else {
+                buffer = initJSArray(untyped view);
+            }
         #else
                 //same species, so just blit the data
                 //in other words, it shares the same bytes per element etc
@@ -72,7 +76,7 @@ class ArrayBufferView {
 
     } //(typedArray)
 
-    @:allow(typedarray)
+    @:allow(snow.io.typedarray)
     #if !no_typedarray_inline inline #end
     function initBuffer( in_buffer:ArrayBuffer, ?in_byteOffset:Int = 0, len:Null<Int> = null ) {
 
@@ -114,7 +118,7 @@ class ArrayBufferView {
     } //(buffer [, byteOffset [, length]])
 
 
-    @:allow(typedarray)
+    @:allow(snow.io.typedarray)
     #if !no_typedarray_inline inline #end
     function initArray<T>( array:Array<T> ) {
 
@@ -205,7 +209,7 @@ class ArrayBufferView {
 
 
     @:generic
-    @:allow(typedarray)
+    @:allow(snow.io.typedarray)
     #if !no_typedarray_inline inline #end
     function subarray<T_subarray>( begin:Int, end:Null<Int> = null ) : T_subarray {
 

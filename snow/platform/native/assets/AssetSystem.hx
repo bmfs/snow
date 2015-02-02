@@ -5,6 +5,7 @@ import snow.assets.AssetSystem;
 import snow.types.Types;
 import snow.utils.Libs;
 import snow.utils.ByteArray;
+import snow.io.typedarray.Uint8Array;
 
 import snow.Log.log;
 import snow.Log._debug;
@@ -53,7 +54,7 @@ import snow.Log._verboser;
                 width_actual : _native_info.width,
                 height_actual : _native_info.height,
                 bpp_source : _native_info.bpp_source,
-                data : new snow.utils.UInt8Array( _native_info.data )
+                data : Uint8Array.fromBuffer( _native_info.data )
             };
 
         } //native_info != null
@@ -83,7 +84,7 @@ import snow.Log._verboser;
             width_actual : _native_info.width,
             height_actual : _native_info.height,
             bpp_source : _native_info.bpp_source,
-            data : new snow.utils.UInt8Array( _native_info.data )
+            data : Uint8Array.fromBuffer( _native_info.data )
         };
 
         _native_info = null;

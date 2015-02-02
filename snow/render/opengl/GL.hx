@@ -19,6 +19,7 @@ package snow.render.opengl;
 #else
 
     typedef GL                  = snow.platform.native.render.opengl.GL;
+    typedef GLLink              = snow.platform.native.render.opengl.GL.GLLink;
     typedef GLActiveInfo        = snow.platform.native.render.opengl.GL.GLActiveInfo;
     typedef GLBuffer            = snow.platform.native.render.opengl.GL.GLBuffer;
     typedef GLContextAttributes = snow.platform.native.render.opengl.GL.GLContextAttributes;

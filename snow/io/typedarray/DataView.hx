@@ -1,6 +1,6 @@
-package typedarray;
+package snow.io.typedarray;
 
-import typedarray.ArrayBuffer;
+import snow.io.typedarray.ArrayBuffer;
 
 class DataView {
 

@@ -5,6 +5,8 @@ import snow.assets.AssetSystem;
 import snow.types.Types;
 import snow.utils.ByteArray;
 
+import snow.io.typedarray.*;
+
 import snow.platform.web.assets.tga.TGA;
 import snow.platform.web.assets.psd.PSD;
 
@@ -92,7 +94,7 @@ import snow.Log._verboser;
                         width_actual : width_pot,
                         height_actual : height_pot,
                         bpp_source : 4,
-                        data : new snow.utils.UInt8Array( image_bytes.data )
+                        data : image_bytes
                     };
 
                         //cleanup
@@ -119,7 +121,7 @@ import snow.Log._verboser;
 
                     ByteArray.readFile(_path, { async:true }, function(data:ByteArray) {
 
-                        var uint = new snow.utils.UInt8Array( data.getData() );
+                        var uint : Uint8Array = data.byteView;
                         var image = new TGA();
                             image.load( uint );
 
@@ -137,7 +139,7 @@ import snow.Log._verboser;
                             width_actual : width_pot,
                             height_actual : height_pot,
                             bpp_source : 4,
-                            data : new snow.utils.UInt8Array( image_bytes.data )
+                            data : image_bytes
                         };
 
                             //cleanup
@@ -159,7 +161,7 @@ import snow.Log._verboser;
 
             } //image_load_info_tga
 
-            function POT_Uint8Array_from_image(_width:Int, _height:Int, _width_pot:Int, _height_pot:Int, _source:js.html.Element) {
+            function POT_Uint8Array_from_image(_width:Int, _height:Int, _width_pot:Int, _height_pot:Int, _source:js.html.Element) : Uint8Array {
 
                 var tmp_canvas = js.Browser.document.createCanvasElement();
 
@@ -190,7 +192,7 @@ import snow.Log._verboser;
                     //cleanup
                 tmp_canvas = null; tmp_context = null;
 
-                return image_bytes;
+                return image_bytes.data;
 
             } //POT_Uint8Array_from_image
 
@@ -216,7 +218,7 @@ import snow.Log._verboser;
                                 width_actual : width_pot,
                                 height_actual : height_pot,
                                 bpp_source : 4,
-                                data : new snow.utils.UInt8Array( image_bytes.data )
+                                data : image_bytes
                             };
 
                                 //cleanup
@@ -265,7 +267,7 @@ import snow.Log._verboser;
                     width_actual : png_header.width,
                     height_actual : png_header.height,
                     bpp_source : png_header.colbits,
-                    data : new snow.utils.UInt8Array(png_bytes.getData())
+                    data : Uint8Array.fromBuffer(png_bytes)
                 }
             #else
 

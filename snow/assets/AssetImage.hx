@@ -74,7 +74,7 @@ class AssetImage extends Asset {
     } //load
 
         /** Create an image asset from a pre-existing decoded image info. This is a synchronous call */
-    public function load_from_pixels( _id:String, _width:Int, _height:Int, _pixels: snow.utils.UInt8Array, ?onload:AssetImage->Void ) {
+    public function load_from_pixels( _id:String, _width:Int, _height:Int, _pixels: snow.io.typedarray.Uint8Array, ?onload:AssetImage->Void ) {
 
         loaded = false;
 

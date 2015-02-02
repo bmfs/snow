@@ -1,4 +1,4 @@
-package typedarray;
+package snow.io.typedarray;
 
 import haxe.io.Bytes;
 
