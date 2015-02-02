@@ -1,9 +1,8 @@
 package snow.platform.native.render.opengl;
 
-import snow.utils.ArrayBuffer;
-import snow.utils.ArrayBufferView;
-import snow.utils.Float32Array;
-import snow.utils.Int32Array;
+import snow.io.typedarray.ArrayBufferView;
+import snow.io.typedarray.Float32Array;
+import snow.io.typedarray.Int32Array;
 
 import snow.utils.Libs;
 
@@ -37,170 +36,441 @@ typedef GLContextAttributes = {
 } //GLContextAttributes
 
 
-typedef GLUniformLocation = Int;
-
 class GLObject {
-
         /** The native GL handle/id. read only */
     public var id (default, null) : Int;
         /** The invalidated state. read only */
-    @:isVar public var invalidated (default,set) : Bool;
-
-    public function new( id:Int ) {
-
-        this.id = id;
-
-    } //new
-
-    function toString() : String {
-
-        return 'GLObject($id)';
-
-    } //toString
-
+    public var invalidated (default,set) : Bool;
+    public function new( id:Int ) this.id = id;
+    function toString() : String return 'GLObject($id)';
     function set_invalidated( value:Bool ) : Bool {
-
-        id = -1;
-        return invalidated = value;
-
+        id = -1; return invalidated = value;
     } //set_invalidated
+}
 
-} //GLObject
+abstract GLUniformLocation(Int) from Int to Int {}
+class GLBO extends GLObject { override function toString() return 'GLBuffer($id)'; }
+class GLFBO extends GLObject { override function toString() return 'GLFramebuffer($id)'; }
+class GLRBO extends GLObject { override function toString() return 'GLRenderbuffer($id)'; }
+class GLSO extends GLObject { override function toString() return 'GLShader($id)'; }
+class GLTO extends GLObject { override function toString() return 'GLTexture($id)'; }
+class GLPO extends GLObject {
+    public var shaders : Array<GLShader>;
+    public function new( id:Int ) { super( id ); shaders = []; } //new
+    override function toString() return 'GLProgram($id)';
+}
 
-class GLBuffer extends GLObject {
-
-    override function toString() : String {
-        return 'GLBuffer($id)';
-    } //toString
-
-} //GLBuffer
-
-
-class GLFBO extends GLObject {
-
-    override function toString() : String {
-        return 'GLFramebuffer($id)';
-    } //toString
-
-} //GLFBO
-
-class GLRBO extends GLObject {
-
-    override function toString() : String {
-        return 'GLRenderbuffer($id)';
-    }
-
-} //GLRBO
-
+abstract GLBuffer(GLBO) {
+    public var id (get,never):Int;
+    public var invalidated (get,set):Bool;
+    inline public function new(_id:Int) this = new GLBO(_id);
+    inline function get_id() return this.id;
+    inline function get_invalidated() return this.invalidated;
+    inline function set_invalidated(_invalidated:Bool) return this.invalidated = _invalidated;
+    @:to inline public function toInt() : Int return this.id;
+    @:to inline public function toDynamic() : Dynamic return this.id;
+    @:to inline public function toNullInt() : Null<Int> return this.id;
+    @:from inline static public function fromInt(_id:Int) return new GLBuffer(_id);
+    @:from inline static public function fromDynamic(_id:Dynamic) return new GLBuffer(Std.int(_id));
+}
 
 abstract GLFramebuffer(GLFBO) {
-
     public var id (get,never) : Int;
     public var invalidated (get,set) : Bool;
-
-    inline public function new(_id:Int) {
-        this = new GLFBO(_id);
-    } //new
-
-    inline function get_id() : Int {
-        return this.id;
-    } //get_id
-
-    inline function get_invalidated() : Bool {
-        return this.invalidated;
-    } //get_invalidated
-
-    inline function set_invalidated(_invalidated:Bool) : Bool {
-        return this.invalidated = _invalidated;
-    } //set_invalidated
-
-    @:from
-    inline static public function fromInt(_id:Int) {
-        return new GLFramebuffer(_id);
-    } //fromInt
-
-    @:from
-    inline static public function fromDynamic(_id:Dynamic) {
-        return new GLFramebuffer(Std.int(_id));
-    } //fromDynamic
-
+    inline public function new(_id:Int) this = new GLFBO(_id);
+    inline function get_id() return this.id;
+    inline function get_invalidated() return this.invalidated;
+    inline function set_invalidated(_invalidated:Bool) return this.invalidated = _invalidated;
+    @:to inline public function toInt() : Int return this.id;
+    @:to inline public function toDynamic() : Dynamic return this.id;
+    @:to inline public function toNullInt() : Null<Int> return this.id;
+    @:from inline static public function fromInt(_id:Int) return new GLFramebuffer(_id);
+    @:from inline static public function fromDynamic(_id:Dynamic) return new GLFramebuffer(Std.int(_id));
 } //GLFramebuffer
 
 abstract GLRenderbuffer(GLRBO) {
-
     public var id (get,never) : Int;
     public var invalidated (get,set) : Bool;
-
-    inline public function new(_id:Int) {
-        this = new GLRBO(_id);
-    } //new
-
-    inline function get_id() : Int {
-        return this.id;
-    } //get_id
-
-    inline function get_invalidated() : Bool {
-        return this.invalidated;
-    } //get_invalidated
-
-    inline function set_invalidated(_invalidated:Bool) : Bool {
-        return this.invalidated = _invalidated;
-    } //set_invalidated
-
-    @:from
-    inline static public function fromInt(_id:Int) {
-        return new GLRenderbuffer(_id);
-    } //fromInt
-
-    @:from
-    inline static public function fromDynamic(_id:Dynamic) {
-        return new GLRenderbuffer(Std.int(_id));
-    } //fromDynamic
-
+    inline public function new(_id:Int) this = new GLRBO(_id);
+    inline function get_id() return this.id;
+    inline function get_invalidated() return this.invalidated;
+    inline function set_invalidated(_invalidated:Bool) return this.invalidated = _invalidated;
+    @:to inline public function toInt() : Int return this.id;
+    @:to inline public function toDynamic() : Dynamic return this.id;
+    @:to inline public function toNullInt() : Null<Int> return this.id;
+    @:from inline static public function fromInt(_id:Int) return new GLRenderbuffer(_id);
+    @:from inline static public function fromDynamic(_id:Dynamic) return new GLRenderbuffer(Std.int(_id));
 } //GLRenderbuffer
 
 
-class GLShader extends GLObject {
+abstract GLTexture(GLTO) {
+    public var id (get,never):Int;
+    public var invalidated (get,set):Bool;
+    inline public function new(_id:Int) this = new GLTO(_id);
+    inline function get_id() return this.id;
+    inline function get_invalidated() return this.invalidated;
+    inline function set_invalidated(_invalidated:Bool) return this.invalidated = _invalidated;
+    @:to inline public function toInt() : Int return this.id;
+    @:to inline public function toDynamic() : Dynamic return this.id;
+    @:to inline public function toNullInt() : Null<Int> return this.id;
+    @:from inline static public function fromInt(_id:Int) return new GLTexture(_id);
+    @:from inline static public function fromDynamic(_id:Dynamic) return new GLTexture(Std.int(_id));
+}
 
-    override function toString() : String {
-        return 'GLShader($id)';
-    }
+abstract GLShader(GLSO) {
+    public var id (get,never):Int;
+    public var invalidated (get,set):Bool;
+    inline public function new(_id:Int) this = new GLSO(_id);
+    inline function get_id() return this.id;
+    inline function get_invalidated() return this.invalidated;
+    inline function set_invalidated(_invalidated:Bool) return this.invalidated = _invalidated;
+    @:to inline public function toInt() : Int return this.id;
+    @:to inline public function toDynamic() : Dynamic return this.id;
+    @:to inline public function toNullInt() : Null<Int> return this.id;
+    @:from inline static public function fromInt(_id:Int) return new GLShader(_id);
+    @:from inline static public function fromDynamic(_id:Dynamic) return new GLShader(Std.int(_id));
+}
 
-} //GLShader
+@:forward(shaders)
+abstract GLProgram(GLPO) {
+    public var id (get,never):Int;
+    public var invalidated (get,set):Bool;
+    inline public function new(_id:Int) this = new GLPO(_id);
+    inline function get_id() return this.id;
+    inline function get_invalidated() return this.invalidated;
+    inline function set_invalidated(_invalidated:Bool) return this.invalidated = _invalidated;
+    @:to inline public function toInt() : Int return this.id;
+    @:to inline public function toDynamic() : Dynamic return this.id;
+    @:to inline public function toNullInt() : Null<Int> return this.id;
+    @:from inline static public function fromInt(_id:Int) return new GLProgram(_id);
+    @:from inline static public function fromDynamic(_id:Dynamic) return new GLProgram(Std.int(_id));
+}
+
+@:keep
+@:buildXml("<include name='${haxelib:snow}/project/include.snow.xml'/>")
+@:headerCode('#include "snow/platform/native/render/opengl/GLProxy.h"')
+class GLLink { }
+
+@:keep
+@:include('snow/platform/native/render/opengl/GLProxy')
+extern class GL {
+
+//Unofficial helpers
+                 @:native('::snow::platform::native::render::opengl::get_version_string')
+    public static function versionString():String;
+
+//WebGL spec GL externs
+
+                 @:native('glActiveTexture')
+    public static function activeTexture(texture:Int):Void;
+                 @:native('glAttachShader')
+    public static function attachShader(program:Int, shader:Int):Void;
+                 @:native('glBindAttribLocation')
+    public static function bindAttribLocation(program:Int, index:Int, name:String):Void;
+                 @:native('glBindBuffer')
+    public static function bindBuffer(target:Int, buffer:Null<Int>):Void;
+                 @:native('glBindFramebuffer')
+    public static function bindFramebuffer(target:Int, framebuffer:Int):Void;
+                 @:native('glBindRenderbuffer')
+    public static function bindRenderbuffer(target:Int, renderbuffer:Int):Void;
+                 @:native('glBindTexture')
+    public static function bindTexture(target:Int, texture:Null<Int>):Void;
+                 @:native('glBlendColor')
+    public static function blendColor(red:Float, green:Float, blue:Float, alpha:Float):Void;
+                 @:native('glBlendEquation')
+    public static function blendEquation(mode:Int):Void;
+                 @:native('glBlendEquationSeparate')
+    public static function blendEquationSeparate(modeRGB:Int, modeAlpha:Int):Void;
+                 @:native('glBlendFunc')
+    public static function blendFunc(sfactor:Int, dfactor:Int):Void;
+                 @:native('glBlendFuncSeparate')
+    public static function blendFuncSeparate(srcRGB:Int, dstRGB:Int, srcAlpha:Int, dstAlpha:Int):Void;
+                 @:native('glCheckFramebufferStatus')
+    public static function checkFramebufferStatus(target:Int):Int;
+                 @:native('glClear')
+    public static function clear(mask:Int):Void;
+                 @:native('glClearColor')
+    public static function clearColor(red:Float, green:Float, blue:Float, alpha:Float):Void;
+                 @:native('glClearDepth')
+    public static function clearDepth(depth:Float):Void;
+                 @:native('glClearStencil')
+    public static function clearStencil(s:Int):Void;
+                 @:native('glColorMask')
+    public static function colorMask(red:Bool, green:Bool, blue:Bool, alpha:Bool):Void;
+                 @:native('glCompileShader')
+    public static function compileShader(shader:Int):Void;
+                 @:native('glCopyTexImage2D')
+    public static function copyTexImage2D(target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void;
+                 @:native('glCopyTexSubImage2D')
+    public static function copyTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void;
+                 @:native('::snow::platform::native::render::opengl::create_buffer')
+    public static function createBuffer():Int;
+                 @:native('glCreateFramebuffer')
+    public static function createFramebuffer():Int;
+                 @:native('glCreateProgram')
+    public static function createProgram():Int;
+                 @:native('glCreateRenderbuffer')
+    public static function createRenderbuffer():Int;
+                 @:native('glCreateShader')
+    public static function createShader(type:Int):Int;
+                 @:native('::snow::platform::native::render::opengl::create_texture')
+    public static function createTexture():Int;
+                 @:native('glCullFace')
+    public static function cullFace(mode:Int):Void;
+                 @:native('glDeleteBuffer')
+    public static function deleteBuffer(buffer:Int):Void;
+                 @:native('glDeleteFramebuffer')
+    public static function deleteFramebuffer(framebuffer:Int):Void;
+                 @:native('glDeleteProgram')
+    public static function deleteProgram(program:Int):Void;
+                 @:native('glDeleteRenderbuffer')
+    public static function deleteRenderbuffer(renderbuffer:Int):Void;
+                 @:native('glDeleteShader')
+    public static function deleteShader(shader:Int):Void;
+                 @:native('glDeleteTexture')
+    public static function deleteTexture(texture:Int):Void;
+                 @:native('glDepthFunc')
+    public static function depthFunc(func:Int):Void;
+                 @:native('glDepthMask')
+    public static function depthMask(flag:Bool):Void;
+                 @:native('glDepthRange')
+    public static function depthRange(zNear:Float, zFar:Float):Void;
+                 @:native('glDetachShader')
+    public static function detachShader(program:Int, shader:Int):Void;
+                 @:native('glDisable')
+    public static function disable(cap:Int):Void;
+                 @:native('glDisableVertexAttribArray')
+    public static function disableVertexAttribArray(index:Int):Void;
+                 @:native('glDrawArrays')
+    public static function drawArrays(mode:Int, first:Int, count:Int):Void;
+                 @:native('glDrawElements')
+    public static function drawElements(mode:Int, count:Int, type:Int, offset:Int):Void;
+                 @:native('glEnable')
+    public static function enable(cap:Int):Void;
+                 @:native('glEnableVertexAttribArray')
+    public static function enableVertexAttribArray(index:Int):Void;
+                 @:native('glFinish')
+    public static function finish():Void;
+                 @:native('glFlush')
+    public static function flush():Void;
+                 @:native('glFramebufferRenderbuffer')
+    public static function framebufferRenderbuffer(target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:Int):Void;
+                 @:native('glFramebufferTexture2D')
+    public static function framebufferTexture2D(target:Int, attachment:Int, textarget:Int, texture:Int, level:Int):Void;
+                 @:native('glFrontFace')
+    public static function frontFace(mode:Int):Void;
+                 @:native('glGenerateMipmap')
+    public static function generateMipmap(target:Int):Void;
+                 @:native('glGetActiveAttrib')
+    public static function getActiveAttrib(program:Int, index:Int):GLActiveInfo;
+                 @:native('glGetActiveUniform')
+    public static function getActiveUniform(program:Int, index:Int):GLActiveInfo;
+                 @:native('glGetAttachedShaders')
+    public static function getAttachedShaders(program:Int):Array<GLShader>;
+                 @:native('glGetAttribLocation')
+    public static function getAttribLocation(program:Int, name:String):Int;
+                 @:native('glGetBufferParameter')
+    public static function getBufferParameter(target:Int, pname:Int):Dynamic;
+                 @:native('glGetContextAttributes')
+    public static function getContextAttributes() : GLContextAttributes;
+                 @:native('glGetError')
+    public static function getError():Int;
+                 @:native('glGetExtension')
+    public static function getExtension(name:String):Dynamic;
+                 @:native('glGetFramebufferAttachmentParameter')
+    public static function getFramebufferAttachmentParameter(target:Int, attachment:Int, pname:Int):Dynamic;
+                 @:native('glGetParameter')
+    public static function getParameter(pname:Int):Dynamic;
+                 @:native('glGetProgramInfoLog')
+    public static function getProgramInfoLog(program:Int):String;
+                 @:native('::snow::platform::native::render::opengl::get_program_parameter')
+    public static function getProgramParameter(program:Int, pname:Int):Int;
+                 @:native('glGetRenderbufferParameter')
+    public static function getRenderbufferParameter(target:Int, pname:Int):Dynamic;
+                 @:native('::snow::platform::native::render::opengl::get_shader_info_log')
+    public static function getShaderInfoLog(shader:Int):String;
+                 @:native('::snow::platform::native::render::opengl::get_shader_parameter')
+    public static function getShaderParameter(shader:Int, pname:Int):Int;
+                 @:native('glGetShaderPrecisionFormat')
+    public static function getShaderPrecisionFormat(shadertype:Int, precisiontype:Int) : GLShaderPrecisionFormat;
+                 @:native('::snow::platform::native::render::opengl::get_shader_source')
+    public static function getShaderSource(shader:Int):String;
+                 @:native('::snow::platform::native::render::opengl::get_supported_extensions')
+    public static function getSupportedExtensions():Array<String>;
+                 @:native('glGetTexParameter')
+    public static function getTexParameter(target:Int, pname:Int):Dynamic;
+                 @:native('glGetUniform')
+    public static function getUniform(program:Int, location:GLUniformLocation):Dynamic;
+                 @:native('glGetUniformLocation')
+    public static function getUniformLocation(program:Int, name:String):Dynamic;
+                 @:native('glGetVertexAttrib')
+    public static function getVertexAttrib(index:Int, pname:Int):Dynamic;
+                 @:native('glGetVertexAttribOffset')
+    public static function getVertexAttribOffset(index:Int, pname:Int):Int;
+                 @:native('glHint')
+    public static function hint(target:Int, mode:Int):Void;
+                 @:native('glIsBuffer')
+    public static function isBuffer(buffer:Int):Bool;
+                 @:native('glIsFramebuffer')
+    public static function isFramebuffer(framebuffer:Int):Bool;
+                 @:native('glIsProgram')
+    public static function isProgram(program:Int):Bool;
+                 @:native('glIsRenderbuffer')
+    public static function isRenderbuffer(renderbuffer:Int):Bool;
+                 @:native('glIsShader')
+    public static function isShader(shader:Int):Bool;
+                 @:native('glIsTexture')
+    public static function isTexture(texture:Int):Bool;
+                 @:native('glLineWidth')
+    public static function lineWidth(width:Float):Void;
+                 @:native('glLinkProgram')
+    public static function linkProgram(program:Int):Void;
+                 @:native('glPixelStorei')
+    public static function pixelStorei(pname:Int, param:Int):Void;
+                 @:native('glPolygonOffset')
+    public static function polygonOffset(factor:Float, units:Float):Void;
+                 @:native('glRenderbufferStorage')
+    public static function renderbufferStorage(target:Int, internalformat:Int, width:Int, height:Int):Void;
+                 @:native('glSampleCoverage')
+    public static function sampleCoverage(value:Float, invert:Bool):Void;
+                 @:native('glScissor')
+    public static function scissor(x:Int, y:Int, width:Int, height:Int):Void;
+                 @:native('::snow::platform::native::render::opengl::shader_source')
+    public static function shaderSource(shader:Int, source:String):Void;
+                 @:native('glStencilFunc')
+    public static function stencilFunc(func:Int, ref:Int, mask:Int):Void;
+                 @:native('glStencilFuncSeparate')
+    public static function stencilFuncSeparate(face:Int, func:Int, ref:Int, mask:Int):Void;
+                 @:native('glStencilMask')
+    public static function stencilMask(mask:Int):Void;
+                 @:native('glStencilMaskSeparate')
+    public static function stencilMaskSeparate(face:Int, mask:Int):Void;
+                 @:native('glStencilOp')
+    public static function stencilOp(fail:Int, zfail:Int, zpass:Int):Void;
+                 @:native('glStencilOpSeparate')
+    public static function stencilOpSeparate(face:Int, fail:Int, zfail:Int, zpass:Int):Void;
+                 @:native('glTexParameterf')
+    public static function texParameterf(target:Int, pname:Int, param:Float):Void;
+                 @:native('glTexParameteri')
+    public static function texParameteri(target:Int, pname:Int, param:Int):Void;
+                 @:native('glUniform1f')
+    public static function uniform1f(location:GLUniformLocation, x:Float):Void;
+                 @:native('glUniform1i')
+    public static function uniform1i(location:GLUniformLocation, x:Int):Void;
+                 @:native('glUniform2f')
+    public static function uniform2f(location:GLUniformLocation, x:Float, y:Float):Void;
+                 @:native('glUniform2i')
+    public static function uniform2i(location:GLUniformLocation, x:Int, y:Int):Void;
+                 @:native('glUniform3f')
+    public static function uniform3f(location:GLUniformLocation, x:Float, y:Float, z:Float):Void;
+                 @:native('glUniform3i')
+    public static function uniform3i(location:GLUniformLocation, x:Int, y:Int, z:Int):Void;
+                 @:native('glUniform4f')
+    public static function uniform4f(location:GLUniformLocation, x:Float, y:Float, z:Float, w:Float):Void;
+                 @:native('glUniform4i')
+    public static function uniform4i(location:GLUniformLocation, x:Int, y:Int, z:Int, w:Int):Void;
+                 @:native('glUseProgram')
+    public static function useProgram(program:Null<Int>):Void;
+                 @:native('glValidateProgram')
+    public static function validateProgram(program:Int):Void;
+                 @:native('glVertexAttrib1f')
+    public static function vertexAttrib1f(indx:Int, x:Float):Void;
+                 @:native('glVertexAttrib2f')
+    public static function vertexAttrib2f(indx:Int, x:Float, y:Float):Void;
+                 @:native('glVertexAttrib3f')
+    public static function vertexAttrib3f(indx:Int, x:Float, y:Float, z:Float):Void;
+                 @:native('glVertexAttrib4f')
+    public static function vertexAttrib4f(indx:Int, x:Float, y:Float, z:Float, w:Float):Void;
+                 @:native('glViewport')
+    public static function viewport(x:Int, y:Int, width:Int, height:Int):Void;
 
 
-class GLTexture extends GLObject {
-
-    override function toString() : String {
-        return 'GLTexture($id)';
-    }
-
-} //GLTexture
-
-
-class GLProgram extends GLObject {
-
-    public var shaders : Array<GLShader>;
-
-    public function new( id:Int ) {
-
-        super( id );
-        shaders = [];
-
-    } //new
-
-    override function toString() : String {
-
-        return 'GLProgram($id)';
-
-    } //toString
-
-} //GLProgram
 
 
 
 
-class GL {
+//3.1.3 buffer proxies
+
+
+
+
+
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::bufferData')
+    public static function bufferData(target:Int, data:ArrayBufferView, usage:Int):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::bufferSubData')
+    public static function bufferSubData(target:Int, offset:Int, data:ArrayBufferView ):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::compressedTexImage2D')
+    public static function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:ArrayBufferView):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::compressedTexSubImage2D')
+    public static function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:ArrayBufferView):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::readPixels')
+    public static function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, data:ArrayBufferView):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::texImage2D')
+    public static function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:ArrayBufferView):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::texSubImage2D')
+    public static function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:ArrayBufferView):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::uniform1fv')
+    public static function uniform1fv(location:GLUniformLocation, data:Float32Array):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::uniform1iv')
+    public static function uniform1iv(location:GLUniformLocation, data:Int32Array):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::uniform2fv')
+    public static function uniform2fv(location:GLUniformLocation, data:Float32Array):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::uniform2iv')
+    public static function uniform2iv(location:GLUniformLocation, data:Int32Array):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::uniform3fv')
+    public static function uniform3fv(location:GLUniformLocation, data:Float32Array):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::uniform3iv')
+    public static function uniform3iv(location:GLUniformLocation, data:Int32Array):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::uniform4fv')
+    public static function uniform4fv(location:GLUniformLocation, data:Float32Array):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::uniform4iv')
+    public static function uniform4iv(location:GLUniformLocation, data:Int32Array):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::uniformMatrix2fv')
+    public static function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool, data:Float32Array):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::uniformMatrix3fv')
+    public static function uniformMatrix3fv(location:GLUniformLocation, transpose:Bool, data:Float32Array):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::uniformMatrix4fv')
+    public static function uniformMatrix4fv(location:GLUniformLocation, transpose:Bool, data:Float32Array):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::vertexAttrib1fv')
+    public static function vertexAttrib1fv(indx:Int, values:Float32Array):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::vertexAttrib2fv')
+    public static function vertexAttrib2fv(indx:Int, values:Float32Array):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::vertexAttrib3fv')
+    public static function vertexAttrib3fv(indx:Int, values:Float32Array):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::vertexAttrib4fv')
+    public static function vertexAttrib4fv(indx:Int, values:Float32Array):Void;
+
+    @:native('::snow::platform::native::render::opengl::GLProxy_obj::vertexAttribPointer')
+    public static function vertexAttribPointer(indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void;
+
+
+
+//Defines
+
+
+
 
     /* ClearBufferMask */
     public static inline var DEPTH_BUFFER_BIT                   = 0x00000100;
@@ -617,862 +887,178 @@ class GL {
     public static inline var UNPACK_COLORSPACE_CONVERSION_WEBGL = 0x9243;
     public static inline var BROWSER_DEFAULT_WEBGL              = 0x9244;
 
-    public static function versionString():String {
-        return snow_gl_version();
-    }
+} //GL
 
-    public static function activeTexture(texture:Int):Void
-    {
-        snow_gl_active_texture(texture);
-    }
 
-    public static function attachShader(program:GLProgram, shader:GLShader):Void
-    {
-        program.shaders.push( shader );
-        snow_gl_attach_shader(program.id, shader.id);
-    }
+@:cppFileCode('
+    #include "render/opengl/snow_opengl.h"
+    #include "haxe/io/Bytes.h"
 
-    public static function bindAttribLocation(program:GLProgram, index:Int, name:String):Void
-    {
-        snow_gl_bind_attrib_location(program.id, index, name);
-    }
+    namespace snow{
+    namespace platform{
+    namespace native{
+    namespace render{
+    namespace opengl{
 
-    public static function bindBuffer(target:Int, buffer:GLBuffer):Void
-    {
-        snow_gl_bind_buffer(target, buffer == null ? 0 : buffer.id);
-    }
+            int create_texture() {
+                unsigned int id = 0;
+                glGenTextures(1,&id);
+                return id;
+            }
 
-    public static function bindFramebuffer(target:Int, framebuffer:GLFramebuffer):Void
-    {
-        snow_gl_bind_framebuffer(target, framebuffer == null ? 0 : framebuffer.id);
-    }
+            int create_buffer() {
+                GLuint buffers;
+                glGenBuffers(1,&buffers);
+                return buffers;
+            }
 
-    public static function bindRenderbuffer(target:Int, renderbuffer:GLRenderbuffer):Void
-    {
-        snow_gl_bind_renderbuffer(target, renderbuffer == null ? 0 : renderbuffer.id);
-    }
+            int get_shader_parameter(int id, int param) {
+                int result = 0;
+                glGetShaderiv(id, param, &result);
+                return result;
+            }
 
-    public static function bindTexture(target:Int, texture:GLTexture):Void
-    {
-        snow_gl_bind_texture(target, texture == null ? 0 : texture.id);
-    }
+            ::String get_shader_source(int id) {
+                int len = 0;
+                glGetShaderiv(id, GL_SHADER_SOURCE_LENGTH, &len);
+                if (len == 0) return null();
+                char *buf = new char[len+1];
+                glGetShaderSource(id, len+1, 0, buf);
+                ::String result(buf);
+                delete [] buf;
+                return result;
+            }
 
-    public static function blendColor(red:Float, green:Float, blue:Float, alpha:Float):Void
-    {
-        snow_gl_blend_color(red, green, blue, alpha);
-    }
+            ::String get_shader_info_log(int id) {
+                char buf[1024] = "";
+                glGetShaderInfoLog(id, 1024, 0, buf);
+                return ::String(buf);
+            }
 
-    public static function blendEquation(mode:Int):Void
-    {
-        snow_gl_blend_equation(mode);
-    }
+            Array< ::String > get_supported_extensions() {
+                Array< ::String > result = Array_obj< ::String >::__new();
 
-    public static function blendEquationSeparate(modeRGB:Int, modeAlpha:Int):Void
-    {
-        snow_gl_blend_equation_separate(modeRGB, modeAlpha);
-    }
+                const char *ext = (const char *)glGetString(GL_EXTENSIONS);
+                if (ext && *ext) {
+                    while(true) {
+                        const char *next = ext;
+                        while(*next && *next!=\' \') {
+                            next++;
+                        }
 
-    public static function blendFunc(sfactor:Int, dfactor:Int):Void
-    {
-        snow_gl_blend_func(sfactor, dfactor);
-    }
+                        result->push( ::String(ext, next - ext) );
 
-    public static function blendFuncSeparate(srcRGB:Int, dstRGB:Int, srcAlpha:Int, dstAlpha:Int):Void
-    {
-        snow_gl_blend_func_separate(srcRGB, dstRGB, srcAlpha, dstAlpha);
-    }
+                        if (!*next || !next[1]) {
+                            break;
+                        }
+
+                        ext = next+1;
+                    } //while true
+                } //if ext and *ext
+                return result;
+            }
+
+            void shader_source(int id, const char* source) {
+                glShaderSource(id, 1, &source, 0);
+            }
+
+            int get_program_parameter(int id, int param) {
+                int result = 0;
+                glGetProgramiv(id, param, &result);
+                return result;
+            }
+
+            ::String get_version_string() {
+                const char* gl_ver = (const char*)glGetString(GL_VERSION);
+                const char* gl_sl  = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
+                const char* gl_ren = (const char*)glGetString(GL_RENDERER);
+                const char* gl_ven = (const char*)glGetString(GL_VENDOR);
+                ::String ver = ::String( gl_ver ? gl_ver   : "GL(null)" );
+                ::String sl  = ::String( gl_sl  ? gl_sl    : "GLSL(null)" );
+                ::String ren = ::String( gl_ren ? gl_ren   : "GLRenderer(null)" );
+                ::String ven = ::String( gl_ven ? gl_ven   : "GLVendor(null)" );
+                ::String slash(" / ");
+                return slash + ver + slash + sl + slash + ren + slash + ven + slash;
+            }
+
+    } //opengl
+    } //render
+    } //native
+    } //platform
+    } //snow
+
+')
+@:headerCode('
+    #include "render/opengl/snow_opengl.h"
+
+    namespace snow {
+    namespace platform {
+    namespace native {
+    namespace render {
+    namespace opengl {
+        extern int create_texture();
+        extern int create_buffer();
+        extern int get_shader_parameter(int id, int param);
+        extern ::String get_shader_source(int id);
+        extern ::String get_shader_info_log(int id);
+        extern Array< ::String > get_supported_extensions();
+        extern void shader_source(int id, const char* source);
+        extern int get_program_parameter(int id, int param);
+        extern ::String get_version_string();
+    } //opengl
+    } //render
+    } //native
+    } //platform
+    } //snow
+')
+@:keep class GLProxy {
 
     public static function bufferData(target:Int, data:ArrayBufferView, usage:Int):Void
-    {
-        snow_gl_buffer_data(target, data.buffer.getByteBuffer(), data.byteOffset, data.buffer.byteLength, usage);
-    }
-
+        untyped __cpp__('glBufferData(target, data->byteLength, (GLvoid*)(&data->buffer->b[0] + data->byteOffset), usage)');
     public static function bufferSubData(target:Int, offset:Int, data:ArrayBufferView ):Void
-    {
-        snow_gl_buffer_sub_data( target, offset, data.buffer.getByteBuffer(), data.byteOffset, data.buffer.byteLength );
-    }
-
-    public static function checkFramebufferStatus(target:Int):Int
-    {
-        return snow_gl_check_framebuffer_status(target);
-    }
-
-    public static function clear(mask:Int):Void
-    {
-        snow_gl_clear(mask);
-    }
-
-    public static function clearColor(red:Float, green:Float, blue:Float, alpha:Float):Void
-    {
-        snow_gl_clear_color(red, green, blue, alpha);
-    }
-
-    public static function clearDepth(depth:Float):Void
-    {
-        snow_gl_clear_depth(depth);
-    }
-
-    public static function clearStencil(s:Int):Void
-    {
-        snow_gl_clear_stencil(s);
-    }
-
-    public static function colorMask(red:Bool, green:Bool, blue:Bool, alpha:Bool):Void
-    {
-        snow_gl_color_mask(red, green, blue, alpha);
-    }
-
-    public static function compileShader(shader:GLShader):Void
-    {
-        snow_gl_compile_shader(shader.id);
-    }
-
+        untyped __cpp__('glBufferSubData(target, offset, data->byteLength, (GLvoid*)(&data->buffer->b[0] + data->byteOffset))');
     public static function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:ArrayBufferView):Void
-    {
-        snow_gl_compressed_tex_image_2d(target, level, internalformat, width, height, border, data == null ? null : data.buffer.getByteBuffer(), data == null ? null : data.byteOffset);
-    }
-
+        untyped __cpp__('glCompressedTexImage2D(target, level, internalformat, width, height, border, data->byteLength, (GLvoid*)(&data->buffer->b[0] + data->byteOffset))');
     public static function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:ArrayBufferView):Void
-    {
-        snow_gl_compressed_tex_sub_image_2d(target, level, xoffset, yoffset, width, height, format, data == null ? null : data.buffer.getByteBuffer(), data == null ? null : data.byteOffset);
-    }
-
-    public static function copyTexImage2D(target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void
-    {
-        snow_gl_copy_tex_image_2d(target, level, internalformat, x, y, width, height, border);
-    }
-
-    public static function copyTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, x:Int, y:Int, width:Int, height:Int):Void
-    {
-        snow_gl_copy_tex_sub_image_2d(target, level, xoffset, yoffset, x, y, width, height);
-    }
-
-    public static function createBuffer():GLBuffer
-    {
-        return new GLBuffer(snow_gl_create_buffer());
-    }
-
-    public static function createFramebuffer():GLFramebuffer
-    {
-        return new GLFramebuffer(snow_gl_create_framebuffer());
-    }
-
-    public static function createProgram():GLProgram
-    {
-        return new GLProgram(snow_gl_create_program());
-    }
-
-    public static function createRenderbuffer():GLRenderbuffer
-    {
-        return new GLRenderbuffer(snow_gl_create_render_buffer());
-    }
-
-    public static function createShader(type:Int):GLShader
-    {
-        return new GLShader(snow_gl_create_shader(type));
-    }
-
-    public static function createTexture():GLTexture
-    {
-        return new GLTexture(snow_gl_create_texture());
-    }
-
-    public static function cullFace(mode:Int):Void
-    {
-        snow_gl_cull_face(mode);
-    }
-
-    public static function deleteBuffer(buffer:GLBuffer):Void
-    {
-        snow_gl_delete_buffer(buffer.id);
-        buffer.invalidated = true;
-    }
-
-    public static function deleteFramebuffer(framebuffer:GLFramebuffer):Void
-    {
-        snow_gl_delete_framebuffer(framebuffer.id);
-        framebuffer.invalidated = true;
-    }
-
-    public static function deleteProgram(program:GLProgram):Void
-    {
-        snow_gl_delete_program(program.id);
-        program.invalidated = true;
-    }
-
-    public static function deleteRenderbuffer(renderbuffer:GLRenderbuffer):Void
-    {
-        snow_gl_delete_render_buffer(renderbuffer.id);
-        renderbuffer.invalidated = true;
-    }
-
-    public static function deleteShader(shader:GLShader):Void
-    {
-        snow_gl_delete_shader(shader.id);
-        shader.invalidated = true;
-    }
-
-    public static function deleteTexture(texture:GLTexture):Void
-    {
-        snow_gl_delete_texture(texture.id);
-        texture.invalidated = true;
-    }
-
-    public static function depthFunc(func:Int):Void
-    {
-        snow_gl_depth_func(func);
-    }
-
-    public static function depthMask(flag:Bool):Void
-    {
-        snow_gl_depth_mask(flag);
-    }
-
-    public static function depthRange(zNear:Float, zFar:Float):Void
-    {
-        snow_gl_depth_range(zNear, zFar);
-    }
-
-    public static function detachShader(program:GLProgram, shader:GLShader):Void
-    {
-        snow_gl_detach_shader(program.id, shader.id);
-    }
-
-    public static function disable(cap:Int):Void
-    {
-        snow_gl_disable(cap);
-    }
-
-    public static function disableVertexAttribArray(index:Int):Void
-    {
-        snow_gl_disable_vertex_attrib_array(index);
-    }
-
-    public static function drawArrays(mode:Int, first:Int, count:Int):Void
-    {
-        snow_gl_draw_arrays(mode, first, count);
-    }
-
-    public static function drawElements(mode:Int, count:Int, type:Int, offset:Int):Void
-    {
-        snow_gl_draw_elements(mode, count, type, offset);
-    }
-
-    public static function enable(cap:Int):Void
-    {
-        snow_gl_enable(cap);
-    }
-
-    public static function enableVertexAttribArray(index:Int):Void
-    {
-        snow_gl_enable_vertex_attrib_array(index);
-    }
-
-    public static function finish():Void
-    {
-        snow_gl_finish();
-    }
-
-    public static function flush():Void
-    {
-        snow_gl_flush();
-    }
-
-    public static function framebufferRenderbuffer(target:Int, attachment:Int, renderbuffertarget:Int, renderbuffer:GLRenderbuffer):Void
-    {
-        snow_gl_framebuffer_renderbuffer(target, attachment, renderbuffertarget, renderbuffer.id);
-    }
-
-    public static function framebufferTexture2D(target:Int, attachment:Int, textarget:Int, texture:GLTexture, level:Int):Void
-    {
-        snow_gl_framebuffer_texture2D(target, attachment, textarget, texture.id, level);
-    }
-
-    public static function frontFace(mode:Int):Void
-    {
-        snow_gl_front_face(mode);
-    }
-
-    public static function generateMipmap(target:Int):Void
-    {
-        snow_gl_generate_mipmap(target);
-    }
-
-    public static function getActiveAttrib(program:GLProgram, index:Int):GLActiveInfo
-    {
-        return snow_gl_get_active_attrib(program.id, index);
-    }
-
-    public static function getActiveUniform(program:GLProgram, index:Int):GLActiveInfo
-    {
-        return snow_gl_get_active_uniform(program.id, index);
-    }
-
-    public static function getAttachedShaders(program:GLProgram):Array<GLShader>
-    {
-        return program.shaders;
-    }
-
-    public static function getAttribLocation(program:GLProgram, name:String):Int
-    {
-        return snow_gl_get_attrib_location(program.id, name);
-    }
-
-    public static function getBufferParameter(target:Int, pname:Int):Dynamic
-    {
-        return snow_gl_get_buffer_paramerter(target, pname);
-    }
-
-    public static function getContextAttributes() : GLContextAttributes
-    {
-            //:todo : according to spec, https://www.khronos.org/registry/webgl/specs/latest/1.0/#5.2
-            //there are some cases to handle when context is lost, which should either happen here
-        return snow_gl_get_context_attributes();
-    }
-
-    public static function getError():Int
-    {
-        return snow_gl_get_error();
-    }
-
-    public static function getExtension(name:String):Dynamic
-    {
-            //todo?!
-        return null;
-        // return snow_gl_get_extension(name);
-    }
-
-    public static function getFramebufferAttachmentParameter(target:Int, attachment:Int, pname:Int):Dynamic
-    {
-        return snow_gl_get_framebuffer_attachment_parameter(target, attachment, pname);
-    }
-
-    public static function getParameter(pname:Int):Dynamic
-    {
-        return snow_gl_get_parameter(pname);
-    }
-
-    public static function getProgramInfoLog(program:GLProgram):String
-    {
-        return snow_gl_get_program_info_log(program.id);
-    }
-
-    public static function getProgramParameter(program:GLProgram, pname:Int):Int
-    {
-        return snow_gl_get_program_parameter(program.id, pname);
-    }
-
-    public static function getRenderbufferParameter(target:Int, pname:Int):Dynamic
-    {
-        return snow_gl_get_render_buffer_parameter(target, pname);
-    }
-
-    public static function getShaderInfoLog(shader:GLShader):String
-    {
-        return snow_gl_get_shader_info_log(shader.id);
-    }
-
-    public static function getShaderParameter(shader:GLShader, pname:Int):Int
-    {
-        return snow_gl_get_shader_parameter(shader.id, pname);
-    }
-
-    public static function getShaderPrecisionFormat(shadertype:Int, precisiontype:Int) : GLShaderPrecisionFormat
-    {
-        return snow_gl_get_shader_precision_format(shadertype, precisiontype);
-    }
-
-    public static function getShaderSource(shader:GLShader):String
-    {
-        return snow_gl_get_shader_source(shader.id);
-    }
-
-    public static function getSupportedExtensions():Array<String>
-    {
-        var result = new Array<String>();
-        snow_gl_get_supported_extensions(result);
-        return result;
-    }
-
-    public static function getTexParameter(target:Int, pname:Int):Dynamic
-    {
-        return snow_gl_get_tex_parameter(target, pname);
-    }
-
-    public static function getUniform(program:GLProgram, location:GLUniformLocation):Dynamic
-    {
-        return snow_gl_get_uniform(program.id, location);
-    }
-
-    public static function getUniformLocation(program:GLProgram, name:String):Dynamic
-    {
-        return snow_gl_get_uniform_location(program.id, name);
-    }
-
-    public static function getVertexAttrib(index:Int, pname:Int):Dynamic
-    {
-        return snow_gl_get_vertex_attrib(index, pname);
-    }
-
-    public static function getVertexAttribOffset(index:Int, pname:Int):Int
-    {
-        return snow_gl_get_vertex_attrib_offset(index, pname);
-    }
-
-    public static function hint(target:Int, mode:Int):Void
-    {
-        snow_gl_hint(target, mode);
-    }
-
-    public static function isBuffer(buffer:GLBuffer):Bool
-    {
-        return buffer != null && buffer.id > 0 && snow_gl_is_buffer(buffer.id);
-    }
-
-    // This is non-static
-    // public function isContextLost():Bool { return false; }
-    public static function isEnabled(cap:Int):Bool
-    {
-        return snow_gl_is_enabled(cap);
-    }
-
-    public static function isFramebuffer(framebuffer:GLFramebuffer):Bool
-    {
-        return framebuffer != null && framebuffer.id > 0 && snow_gl_is_framebuffer(framebuffer.id);
-    }
-
-    public static function isProgram(program:GLProgram):Bool
-    {
-        return program != null && program.id > 0 && snow_gl_is_program(program.id);
-    }
-
-    public static function isRenderbuffer(renderbuffer:GLRenderbuffer):Bool
-    {
-        return renderbuffer != null && renderbuffer.id > 0 && snow_gl_is_renderbuffer(renderbuffer.id);
-    }
-
-    public static function isShader(shader:GLShader):Bool
-    {
-        return shader != null && shader.id > 0 && snow_gl_is_shader(shader.id);
-    }
-
-    public static function isTexture(texture:GLTexture):Bool
-    {
-        return texture != null && texture.id > 0 && snow_gl_is_texture(texture.id);
-    }
-
-    public static function lineWidth(width:Float):Void
-    {
-        snow_gl_line_width(width);
-    }
-
-    public static function linkProgram(program:GLProgram):Void
-    {
-        snow_gl_link_program(program.id);
-    }
-
-    static function load(inName:String, inArgCount:Int):Dynamic
-    {
-        try {
-            return Libs.load("snow", inName, inArgCount);
-        } catch(e:Dynamic) {
-            trace(e);
-            return null;
-        }
-    }
-
-    public static function pixelStorei(pname:Int, param:Int):Void
-    {
-        snow_gl_pixel_storei(pname, param);
-    }
-
-    public static function polygonOffset(factor:Float, units:Float):Void
-    {
-        snow_gl_polygon_offset(factor, units);
-    }
-
-    public static function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void
-    {
-        snow_gl_read_pixels(x, y, width, height, format, type, pixels == null ? null : pixels.buffer.getByteBuffer(), pixels == null ? null : pixels.byteOffset);
-    }
-
-    public static function renderbufferStorage(target:Int, internalformat:Int, width:Int, height:Int):Void
-    {
-        snow_gl_renderbuffer_storage(target, internalformat, width, height);
-    }
-
-    public static function sampleCoverage(value:Float, invert:Bool):Void
-    {
-        snow_gl_sample_coverage(value, invert);
-    }
-
-    public static function scissor(x:Int, y:Int, width:Int, height:Int):Void
-    {
-        snow_gl_scissor(x, y, width, height);
-    }
-
-    public static function shaderSource(shader:GLShader, source:String):Void
-    {
-        snow_gl_shader_source(shader.id, source);
-    }
-
-    public static function stencilFunc(func:Int, ref:Int, mask:Int):Void
-    {
-        snow_gl_stencil_func(func, ref, mask);
-    }
-
-    public static function stencilFuncSeparate(face:Int, func:Int, ref:Int, mask:Int):Void
-    {
-        snow_gl_stencil_func_separate(face, func, ref, mask);
-    }
-
-    public static function stencilMask(mask:Int):Void
-    {
-        snow_gl_stencil_mask(mask);
-    }
-
-    public static function stencilMaskSeparate(face:Int, mask:Int):Void
-    {
-        snow_gl_stencil_mask_separate(face, mask);
-    }
-
-    public static function stencilOp(fail:Int, zfail:Int, zpass:Int):Void
-    {
-        snow_gl_stencil_op(fail, zfail, zpass);
-    }
-
-    public static function stencilOpSeparate(face:Int, fail:Int, zfail:Int, zpass:Int):Void
-    {
-        snow_gl_stencil_op_separate(face, fail, zfail, zpass);
-    }
-
-    public static function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, pixels:ArrayBufferView):Void
-    {
-        snow_gl_tex_image_2d(target, level, internalformat, width, height, border, format, type, pixels == null ? null : pixels.buffer.getByteBuffer(), pixels == null ? null : pixels.byteOffset);
-    }
-
-    public static function texParameterf(target:Int, pname:Int, param:Float):Void
-    {
-        snow_gl_tex_parameterf(target, pname, param);
-    }
-
-    public static function texParameteri(target:Int, pname:Int, param:Int):Void
-    {
-        snow_gl_tex_parameteri(target, pname, param);
-    }
-
-    public static function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, pixels:ArrayBufferView):Void
-    {
-        snow_gl_tex_sub_image_2d(target, level, xoffset, yoffset, width, height, format, type, pixels == null ? null : pixels.buffer.getByteBuffer(), pixels == null ? null : pixels.byteOffset);
-    }
-
-    public static function uniform1f(location:GLUniformLocation, x:Float):Void
-    {
-        snow_gl_uniform1f(location, x);
-    }
-
-    public static function uniform1fv(location:GLUniformLocation, x:Float32Array):Void
-    {
-        snow_gl_uniform1fv(location, x.buffer.getByteBuffer());
-    }
-
-    public static function uniform1i(location:GLUniformLocation, x:Int):Void
-    {
-        snow_gl_uniform1i(location, x);
-    }
-
-    public static function uniform1iv(location:GLUniformLocation, v:Int32Array):Void
-    {
-        snow_gl_uniform1iv(location, v.buffer.getByteBuffer());
-    }
-
-    public static function uniform2f(location:GLUniformLocation, x:Float, y:Float):Void
-    {
-        snow_gl_uniform2f(location, x, y);
-    }
-
-    public static function uniform2fv(location:GLUniformLocation, v:Float32Array):Void
-    {
-        snow_gl_uniform2fv(location, v.buffer.getByteBuffer());
-    }
-
-    public static function uniform2i(location:GLUniformLocation, x:Int, y:Int):Void
-    {
-        snow_gl_uniform2i(location, x, y);
-    }
-
-    public static function uniform2iv(location:GLUniformLocation, v:Int32Array):Void
-    {
-        snow_gl_uniform2iv(location, v.buffer.getByteBuffer());
-    }
-
-    public static function uniform3f(location:GLUniformLocation, x:Float, y:Float, z:Float):Void
-    {
-        snow_gl_uniform3f(location, x, y, z);
-    }
-
-    public static function uniform3fv(location:GLUniformLocation, v:Float32Array):Void
-    {
-        snow_gl_uniform3fv(location, v.buffer.getByteBuffer());
-    }
-
-    public static function uniform3i(location:GLUniformLocation, x:Int, y:Int, z:Int):Void
-    {
-        snow_gl_uniform3i(location, x, y, z);
-    }
-
-    public static function uniform3iv(location:GLUniformLocation, v:Int32Array):Void
-    {
-        snow_gl_uniform3iv(location, v.buffer.getByteBuffer());
-    }
-
-    public static function uniform4f(location:GLUniformLocation, x:Float, y:Float, z:Float, w:Float):Void
-    {
-        snow_gl_uniform4f(location, x, y, z, w);
-    }
-
-    public static function uniform4fv(location:GLUniformLocation, v:Float32Array):Void
-    {
-        snow_gl_uniform4fv(location, v.buffer.getByteBuffer());
-    }
-
-    public static function uniform4i(location:GLUniformLocation, x:Int, y:Int, z:Int, w:Int):Void
-    {
-        snow_gl_uniform4i(location, x, y, z, w);
-    }
-
-    public static function uniform4iv(location:GLUniformLocation, v:Int32Array):Void
-    {
-        snow_gl_uniform4iv(location, v.buffer.getByteBuffer());
-    }
-
-    public static function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool, v:Float32Array):Void
-    {
-        snow_gl_uniform_matrix(location, transpose, v.buffer.getByteBuffer(), 2);
-    }
-
-    public static function uniformMatrix3fv(location:GLUniformLocation, transpose:Bool, v:Float32Array):Void
-    {
-        snow_gl_uniform_matrix(location, transpose, v.buffer.getByteBuffer(), 3);
-    }
-
-    public static function uniformMatrix4fv(location:GLUniformLocation, transpose:Bool, v:Float32Array):Void
-    {
-        snow_gl_uniform_matrix(location, transpose, v.buffer.getByteBuffer(), 4);
-    }
-
-    public static function useProgram(program:GLProgram):Void
-    {
-        snow_gl_use_program(program == null ? 0 : program.id);
-    }
-
-    public static function validateProgram(program:GLProgram):Void
-    {
-        snow_gl_validate_program(program.id);
-    }
-
-    public static function vertexAttrib1f(indx:Int, x:Float):Void
-    {
-        snow_gl_vertex_attrib1f(indx, x);
-    }
-
-    public static function vertexAttrib1fv(indx:Int, values:Float32Array):Void
-    {
-        snow_gl_vertex_attrib1fv(indx, values.buffer.getByteBuffer());
-    }
-
-    public static function vertexAttrib2f(indx:Int, x:Float, y:Float):Void
-    {
-        snow_gl_vertex_attrib2f(indx, x, y);
-    }
-
-    public static function vertexAttrib2fv(indx:Int, values:Float32Array):Void
-    {
-        snow_gl_vertex_attrib2fv(indx, values.buffer.getByteBuffer());
-    }
-
-    public static function vertexAttrib3f(indx:Int, x:Float, y:Float, z:Float):Void
-    {
-        snow_gl_vertex_attrib3f(indx, x, y, z);
-    }
-
-    public static function vertexAttrib3fv(indx:Int, values:Float32Array):Void
-    {
-        snow_gl_vertex_attrib3fv(indx, values.buffer.getByteBuffer());
-    }
-
-    public static function vertexAttrib4f(indx:Int, x:Float, y:Float, z:Float, w:Float):Void
-    {
-        snow_gl_vertex_attrib4f(indx, x, y, z, w);
-    }
-
-    public static function vertexAttrib4fv(indx:Int, values:Float32Array):Void
-    {
-        snow_gl_vertex_attrib4fv(indx, values.buffer.getByteBuffer());
-    }
-
+        untyped __cpp__('glCompressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, data->byteLength, (GLvoid*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, data:ArrayBufferView):Void
+        untyped __cpp__('glReadPixels(x, y, width, height, format, type, (GLvoid*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:ArrayBufferView):Void
+        untyped __cpp__('glTexImage2D(target, level, internalformat, width, height, border, format, type, (GLvoid*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:ArrayBufferView):Void
+        untyped __cpp__('glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, (GLvoid*)(&data->buffer->b[0] + data->byteOffset))');
+
+    public static function uniform1fv(location:GLUniformLocation, data:Float32Array):Void
+        untyped __cpp__('glUniform1fv(location, data->byteLength, (GLfloat*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function uniform1iv(location:GLUniformLocation, data:Int32Array):Void
+        untyped __cpp__('glUniform1iv(location, data->byteLength, (GLint*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function uniform2fv(location:GLUniformLocation, data:Float32Array):Void
+        untyped __cpp__('glUniform2fv(location, data->byteLength>>1, (GLfloat*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function uniform2iv(location:GLUniformLocation, data:Int32Array):Void
+        untyped __cpp__('glUniform2iv(location, data->byteLength>>1, (GLint*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function uniform3fv(location:GLUniformLocation, data:Float32Array):Void
+        untyped __cpp__('glUniform3fv(location, data->byteLength/3, (GLfloat*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function uniform3iv(location:GLUniformLocation, data:Int32Array):Void
+        untyped __cpp__('glUniform3iv(location, data->byteLength/3, (GLint*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function uniform4fv(location:GLUniformLocation, data:Float32Array):Void
+        untyped __cpp__('glUniform4fv(location, data->byteLength>>2, (GLfloat*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function uniform4iv(location:GLUniformLocation, data:Int32Array):Void
+        untyped __cpp__('glUniform4iv(location, data->byteLength>>2, (GLint*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool, data:Float32Array):Void
+        untyped __cpp__('glUniformMatrix2fv(location, data->length>>2, transpose, (GLfloat*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function uniformMatrix3fv(location:GLUniformLocation, transpose:Bool, data:Float32Array):Void
+        untyped __cpp__('glUniformMatrix3fv(location, data->length/9, transpose, (GLfloat*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function uniformMatrix4fv(location:GLUniformLocation, transpose:Bool, data:Float32Array):Void
+        untyped __cpp__('glUniformMatrix4fv(location, data->length>>4, transpose, (GLfloat*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function vertexAttrib1fv(indx:Int, data:Float32Array):Void
+        untyped __cpp__('glVertexAttrib1fv(indx, (GLfloat*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function vertexAttrib2fv(indx:Int, data:Float32Array):Void
+        untyped __cpp__('glVertexAttrib2fv(indx, (GLfloat*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function vertexAttrib3fv(indx:Int, data:Float32Array):Void
+        untyped __cpp__('glVertexAttrib3fv(indx, (GLfloat*)(&data->buffer->b[0] + data->byteOffset))');
+    public static function vertexAttrib4fv(indx:Int, data:Float32Array):Void
+        untyped __cpp__('glVertexAttrib4fv(indx, (GLfloat*)(&data->buffer->b[0] + data->byteOffset))');
     public static function vertexAttribPointer(indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void
-    {
-        snow_gl_vertex_attrib_pointer(indx, size, type, normalized, stride, offset);
-    }
-
-    public static function viewport(x:Int, y:Int, width:Int, height:Int):Void
-    {
-        snow_gl_viewport(x, y, width, height);
-    }
-
-
-
-
-    // Getters & Setters
-
-
-
-
-    static function get_version():Int { return 2; }
-
-
-
-
-    // Native Methods
-
-
-
-
-    static var snow_gl_active_texture = load("snow_gl_active_texture", 1);
-    static var snow_gl_attach_shader = load("snow_gl_attach_shader", 2);
-    static var snow_gl_bind_attrib_location = load("snow_gl_bind_attrib_location", 3);
-    static var snow_gl_bind_buffer = load("snow_gl_bind_buffer", 2);
-    static var snow_gl_bind_framebuffer = load("snow_gl_bind_framebuffer", 2);
-    static var snow_gl_bind_renderbuffer = load("snow_gl_bind_renderbuffer", 2);
-    static var snow_gl_bind_texture = load("snow_gl_bind_texture", 2);
-    static var snow_gl_blend_color = load("snow_gl_blend_color", 4);
-    static var snow_gl_blend_equation = load("snow_gl_blend_equation", 1);
-    static var snow_gl_blend_equation_separate = load("snow_gl_blend_equation_separate", 2);
-    static var snow_gl_blend_func = load("snow_gl_blend_func", 2);
-    static var snow_gl_blend_func_separate = load("snow_gl_blend_func_separate", 4);
-    static var snow_gl_buffer_data = load("snow_gl_buffer_data", 5);
-    static var snow_gl_buffer_sub_data = load("snow_gl_buffer_sub_data", 5);
-    static var snow_gl_check_framebuffer_status = load("snow_gl_check_framebuffer_status", 1);
-    static var snow_gl_clear = load("snow_gl_clear", 1);
-    static var snow_gl_clear_color = load("snow_gl_clear_color", 4);
-    static var snow_gl_clear_depth = load("snow_gl_clear_depth", 1);
-    static var snow_gl_clear_stencil = load("snow_gl_clear_stencil", 1);
-    static var snow_gl_color_mask = load("snow_gl_color_mask", 4);
-    static var snow_gl_compile_shader = load("snow_gl_compile_shader", 1);
-    static var snow_gl_compressed_tex_image_2d = load("snow_gl_compressed_tex_image_2d", -1);
-    static var snow_gl_compressed_tex_sub_image_2d = load("snow_gl_compressed_tex_sub_image_2d", -1);
-    static var snow_gl_copy_tex_image_2d = load("snow_gl_copy_tex_image_2d", -1);
-    static var snow_gl_copy_tex_sub_image_2d = load("snow_gl_copy_tex_sub_image_2d", -1);
-    static var snow_gl_create_buffer = load("snow_gl_create_buffer", 0);
-    static var snow_gl_create_framebuffer = load("snow_gl_create_framebuffer", 0);
-    static var snow_gl_create_program = load("snow_gl_create_program", 0);
-    static var snow_gl_create_render_buffer = load("snow_gl_create_render_buffer", 0);
-    static var snow_gl_create_shader = load("snow_gl_create_shader", 1);
-    static var snow_gl_create_texture = load("snow_gl_create_texture", 0);
-    static var snow_gl_cull_face = load("snow_gl_cull_face", 1);
-    static var snow_gl_delete_buffer = load("snow_gl_delete_buffer", 1);
-    static var snow_gl_delete_framebuffer = load("snow_gl_delete_framebuffer", 1);
-    static var snow_gl_delete_program = load("snow_gl_delete_program", 1);
-    static var snow_gl_delete_render_buffer = load("snow_gl_delete_render_buffer", 1);
-    static var snow_gl_delete_shader = load("snow_gl_delete_shader", 1);
-    static var snow_gl_delete_texture = load("snow_gl_delete_texture", 1);
-    static var snow_gl_depth_func = load("snow_gl_depth_func", 1);
-    static var snow_gl_depth_mask = load("snow_gl_depth_mask", 1);
-    static var snow_gl_depth_range = load("snow_gl_depth_range", 2);
-    static var snow_gl_detach_shader = load("snow_gl_detach_shader", 2);
-    static var snow_gl_disable = load("snow_gl_disable", 1);
-    static var snow_gl_disable_vertex_attrib_array = load("snow_gl_disable_vertex_attrib_array", 1);
-    static var snow_gl_draw_arrays = load("snow_gl_draw_arrays", 3);
-    static var snow_gl_draw_elements = load("snow_gl_draw_elements", 4);
-    static var snow_gl_enable = load("snow_gl_enable", 1);
-    static var snow_gl_enable_vertex_attrib_array = load("snow_gl_enable_vertex_attrib_array", 1);
-    static var snow_gl_finish = load("snow_gl_finish", 0);
-    static var snow_gl_flush = load("snow_gl_flush", 0);
-    static var snow_gl_framebuffer_renderbuffer = load("snow_gl_framebuffer_renderbuffer", 4);
-    static var snow_gl_framebuffer_texture2D = load("snow_gl_framebuffer_texture2D", 5);
-    static var snow_gl_front_face = load("snow_gl_front_face", 1);
-    static var snow_gl_generate_mipmap = load("snow_gl_generate_mipmap", 1);
-    static var snow_gl_get_active_attrib = load("snow_gl_get_active_attrib", 2);
-    static var snow_gl_get_active_uniform = load("snow_gl_get_active_uniform", 2);
-    static var snow_gl_get_attrib_location = load("snow_gl_get_attrib_location", 2);
-    static var snow_gl_get_buffer_paramerter = load("snow_gl_get_buffer_paramerter", 2);
-    static var snow_gl_get_context_attributes = load("snow_gl_get_context_attributes", 0);
-    static var snow_gl_get_error = load("snow_gl_get_error", 0);
-    static var snow_gl_get_framebuffer_attachment_parameter = load("snow_gl_get_framebuffer_attachment_parameter", 3);
-    static var snow_gl_get_parameter = load("snow_gl_get_parameter", 1);
-    // static var snow_gl_get_extension = load("snow_gl_get_extension", 1);
-    static var snow_gl_get_program_info_log = load("snow_gl_get_program_info_log", 1);
-    static var snow_gl_get_program_parameter = load("snow_gl_get_program_parameter", 2);
-    static var snow_gl_get_render_buffer_parameter = load("snow_gl_get_render_buffer_parameter", 2);
-    static var snow_gl_get_shader_info_log = load("snow_gl_get_shader_info_log", 1);
-    static var snow_gl_get_shader_parameter = load("snow_gl_get_shader_parameter", 2);
-    static var snow_gl_get_shader_precision_format = load("snow_gl_get_shader_precision_format", 2);
-    static var snow_gl_get_shader_source = load("snow_gl_get_shader_source", 1);
-    static var snow_gl_get_supported_extensions = load("snow_gl_get_supported_extensions", 1);
-    static var snow_gl_get_tex_parameter = load("snow_gl_get_tex_parameter", 2);
-    static var snow_gl_get_uniform = load("snow_gl_get_uniform", 2);
-    static var snow_gl_get_uniform_location = load("snow_gl_get_uniform_location", 2);
-    static var snow_gl_get_vertex_attrib = load("snow_gl_get_vertex_attrib", 2);
-    static var snow_gl_get_vertex_attrib_offset = load("snow_gl_get_vertex_attrib_offset", 2);
-    static var snow_gl_hint = load("snow_gl_hint", 2);
-    static var snow_gl_is_buffer = load("snow_gl_is_buffer", 1);
-    static var snow_gl_is_enabled = load("snow_gl_is_enabled", 1);
-    static var snow_gl_is_framebuffer = load("snow_gl_is_framebuffer", 1);
-    static var snow_gl_is_program = load("snow_gl_is_program", 1);
-    static var snow_gl_is_renderbuffer = load("snow_gl_is_renderbuffer", 1);
-    static var snow_gl_is_shader = load("snow_gl_is_shader", 1);
-    static var snow_gl_is_texture = load("snow_gl_is_texture", 1);
-    static var snow_gl_line_width = load("snow_gl_line_width", 1);
-    static var snow_gl_link_program = load("snow_gl_link_program", 1);
-    static var snow_gl_pixel_storei = load("snow_gl_pixel_storei", 2);
-    static var snow_gl_polygon_offset = load("snow_gl_polygon_offset", 2);
-    static var snow_gl_read_pixels = load("snow_gl_read_pixels", -1);
-    static var snow_gl_renderbuffer_storage = load("snow_gl_renderbuffer_storage", 4);
-    static var snow_gl_sample_coverage = load("snow_gl_sample_coverage", 2);
-    static var snow_gl_scissor = load("snow_gl_scissor", 4);
-    static var snow_gl_shader_source = load("snow_gl_shader_source", 2);
-    static var snow_gl_stencil_func = load("snow_gl_stencil_func", 3);
-    static var snow_gl_stencil_func_separate = load("snow_gl_stencil_func_separate", 4);
-    static var snow_gl_stencil_mask = load("snow_gl_stencil_mask", 1);
-    static var snow_gl_stencil_mask_separate = load("snow_gl_stencil_mask_separate", 2);
-    static var snow_gl_stencil_op = load("snow_gl_stencil_op", 3);
-    static var snow_gl_stencil_op_separate = load("snow_gl_stencil_op_separate", 4);
-    static var snow_gl_tex_image_2d = load("snow_gl_tex_image_2d", -1);
-    static var snow_gl_tex_parameterf = load("snow_gl_tex_parameterf", 3);
-    static var snow_gl_tex_parameteri = load("snow_gl_tex_parameteri", 3);
-    static var snow_gl_tex_sub_image_2d = load("snow_gl_tex_sub_image_2d", -1);
-    static var snow_gl_uniform1f = load("snow_gl_uniform1f", 2);
-    static var snow_gl_uniform1fv = load("snow_gl_uniform1fv", 2);
-    static var snow_gl_uniform1i = load("snow_gl_uniform1i", 2);
-    static var snow_gl_uniform1iv = load("snow_gl_uniform1iv", 2);
-    static var snow_gl_uniform2f = load("snow_gl_uniform2f", 3);
-    static var snow_gl_uniform2fv = load("snow_gl_uniform2fv", 2);
-    static var snow_gl_uniform2i = load("snow_gl_uniform2i", 3);
-    static var snow_gl_uniform2iv = load("snow_gl_uniform2iv", 2);
-    static var snow_gl_uniform3f = load("snow_gl_uniform3f", 4);
-    static var snow_gl_uniform3fv = load("snow_gl_uniform3fv", 2);
-    static var snow_gl_uniform3i = load("snow_gl_uniform3i", 4);
-    static var snow_gl_uniform3iv = load("snow_gl_uniform3iv", 2);
-    static var snow_gl_uniform4f = load("snow_gl_uniform4f", 5);
-    static var snow_gl_uniform4fv = load("snow_gl_uniform4fv", 2);
-    static var snow_gl_uniform4i = load("snow_gl_uniform4i", 5);
-    static var snow_gl_uniform4iv = load("snow_gl_uniform4iv", 2);
-    static var snow_gl_uniform_matrix = load("snow_gl_uniform_matrix", 4);
-    static var snow_gl_use_program = load("snow_gl_use_program", 1);
-    static var snow_gl_validate_program = load("snow_gl_validate_program", 1);
-    static var snow_gl_version = load("snow_gl_version", 0);
-    static var snow_gl_vertex_attrib1f = load("snow_gl_vertex_attrib1f", 2);
-    static var snow_gl_vertex_attrib1fv = load("snow_gl_vertex_attrib1fv", 2);
-    static var snow_gl_vertex_attrib2f = load("snow_gl_vertex_attrib2f", 3);
-    static var snow_gl_vertex_attrib2fv = load("snow_gl_vertex_attrib2fv", 2);
-    static var snow_gl_vertex_attrib3f = load("snow_gl_vertex_attrib3f", 4);
-    static var snow_gl_vertex_attrib3fv = load("snow_gl_vertex_attrib3fv", 2);
-    static var snow_gl_vertex_attrib4f = load("snow_gl_vertex_attrib4f", 5);
-    static var snow_gl_vertex_attrib4fv = load("snow_gl_vertex_attrib4fv", 2);
-    static var snow_gl_vertex_attrib_pointer = load("snow_gl_vertex_attrib_pointer", -1);
-    static var snow_gl_viewport = load("snow_gl_viewport", 4);
-
+        untyped __cpp__('glVertexAttribPointer(indx, size, type, normalized, stride, (void *)(intptr_t)offset)');
 
 }
-
