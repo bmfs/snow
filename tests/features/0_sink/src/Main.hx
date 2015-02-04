@@ -639,7 +639,7 @@ class Main extends snow.AppFixedTimestep {
 
         vertexBuffer = GL.createBuffer ();
         GL.bindBuffer (GL.ARRAY_BUFFER, vertexBuffer);
-        GL.bufferData(GL.ARRAY_BUFFER, Float32Array.fromArray(cast vertices), GL.STATIC_DRAW);
+        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(vertices), GL.STATIC_DRAW);
         GL.bindBuffer (GL.ARRAY_BUFFER, null);
 
         var texCoords = [
@@ -653,7 +653,7 @@ class Main extends snow.AppFixedTimestep {
 
         texCoordBuffer = GL.createBuffer ();
         GL.bindBuffer (GL.ARRAY_BUFFER, texCoordBuffer);
-        GL.bufferData(GL.ARRAY_BUFFER, Float32Array.fromArray(cast texCoords), GL.STATIC_DRAW);
+        GL.bufferData(GL.ARRAY_BUFFER, new Float32Array(texCoords), GL.STATIC_DRAW);
         GL.bindBuffer (GL.ARRAY_BUFFER, null);
 
     } //createBuffers
@@ -704,7 +704,7 @@ class Main extends snow.AppFixedTimestep {
         var sy = 1.0 / (y1 - y0);
         var sz = 1.0 / (zFar - zNear);
 
-        return Float32Array.fromArray([
+        return new Float32Array([
             2.0*sx,         0,              0,                  0,
             0,              2.0*sy,         0,                  0,
             0,              0,              -2.0*sz,            0,
@@ -719,7 +719,7 @@ class Main extends snow.AppFixedTimestep {
         var c = Math.cos(theta);
         var s = Math.sin(theta);
 
-        return Float32Array.fromArray([
+        return new Float32Array([
             c*scale,  -s*scale,     0,      0,
             s*scale,  c*scale,      0,      0,
             0,        0,            1,      0,
