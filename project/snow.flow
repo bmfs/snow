@@ -15,12 +15,7 @@
     },
 
     if:{
-        "mac || windows && !snow_dynamic_link": {
-            build:{
-                hxcpp: {
-                    flags:['-Dstatic_link']
-                }
-            }
-        }
+        "windows && !snow_dynamic_link": { build:{ hxcpp: { flags:['-Dstatic_link'] } } },
+        "mac && !snow_dynamic_link": { build:{ hxcpp: { flags:['-Dstatic_link'] } } }
     }
 }
