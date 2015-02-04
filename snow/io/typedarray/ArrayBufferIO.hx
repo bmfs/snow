@@ -1,5 +1,7 @@
 package snow.io.typedarray;
 
+#if !js
+
 class ArrayBufferIO {
 
     #if !no_typedarray_inline inline #end
@@ -277,3 +279,5 @@ class ArrayBufferIO {
     } //_clamp
 
 }
+
+#end //!js

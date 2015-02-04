@@ -81,10 +81,10 @@ class GL {
         current_context.blendFuncSeparate(srcRGB, dstRGB, srcAlpha, dstAlpha);
 
     public static function bufferData(target:Int, data:ArrayBufferView, usage:Int):Void
-        current_context.bufferData( target, untyped data.buffer.b, usage );
+        current_context.bufferData( target, data, usage );
 
     public static function bufferSubData(target:Int, offset:Int, data:ArrayBufferView):Void
-        current_context.bufferSubData(target, offset, untyped data.buffer.b);
+        current_context.bufferSubData(target, offset, data);
 
     public static function checkFramebufferStatus(target:Int):Int
         return current_context.checkFramebufferStatus(target);
@@ -108,10 +108,10 @@ class GL {
         current_context.compileShader(shader);
 
     public static function compressedTexImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, data:ArrayBufferView):Void
-        current_context.compressedTexImage2D(target, level, internalformat, width, height, border, untyped data.buffer.b);
+        current_context.compressedTexImage2D(target, level, internalformat, width, height, border, data);
 
     public static function compressedTexSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, data:ArrayBufferView):Void
-        current_context.compressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, untyped data.buffer.b);
+        current_context.compressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, data);
 
     public static function copyTexImage2D(target:Int, level:Int, internalformat:Int, x:Int, y:Int, width:Int, height:Int, border:Int):Void
         current_context.copyTexImage2D(target, level, internalformat, x, y, width, height, border);
@@ -316,7 +316,7 @@ class GL {
 
         // TODO: pixels? May need setting to work (canvas.getContext("experimental-webgl", {preserveDrawingBuffer: true});)
     public static function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, data:ArrayBufferView):Void
-        current_context.readPixels(x, y, width, height, format, type, untyped data.buffer.b);
+        current_context.readPixels(x, y, width, height, format, type, data);
 
     public static function renderbufferStorage(target:Int, internalformat:Int, width:Int, height:Int):Void
         current_context.renderbufferStorage(target, internalformat, width, height);
@@ -349,7 +349,7 @@ class GL {
         current_context.stencilOpSeparate(face, fail, zfail, zpass);
 
     public static function texImage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, border:Int, format:Int, type:Int, data:ArrayBufferView):Void
-        current_context.texImage2D(target, level, internalformat, width, height, border, format, type, untyped data.buffer.b);
+        current_context.texImage2D(target, level, internalformat, width, height, border, format, type, data);
 
     public static function texParameterf(target:Int, pname:Int, param:Float):Void
         current_context.texParameterf(target, pname, param);
@@ -358,64 +358,64 @@ class GL {
         current_context.texParameteri(target, pname, param);
 
     public static function texSubImage2D(target:Int, level:Int, xoffset:Int, yoffset:Int, width:Int, height:Int, format:Int, type:Int, data:ArrayBufferView):Void
-        current_context.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, untyped data.buffer.b);
+        current_context.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, data);
 
     public static function uniform1f(location:GLUniformLocation, x:Float):Void
         current_context.uniform1f(location, x);
 
     public static function uniform1fv(location:GLUniformLocation, data:Float32Array):Void
-        current_context.uniform1fv(location, untyped data.buffer.b);
+        current_context.uniform1fv(location, data);
 
     public static function uniform1i(location:GLUniformLocation, x:Int):Void
         current_context.uniform1i(location, x);
 
     public static function uniform1iv(location:GLUniformLocation, data:Int32Array):Void
-        current_context.uniform1iv(location, untyped data.buffer.b);
+        current_context.uniform1iv(location, data);
 
     public static function uniform2f(location:GLUniformLocation, x:Float, y:Float):Void
         current_context.uniform2f(location, x, y);
 
     public static function uniform2fv(location:GLUniformLocation, data:Float32Array):Void
-        current_context.uniform2fv(location, untyped data.buffer.b);
+        current_context.uniform2fv(location, data);
 
     public static function uniform2i(location:GLUniformLocation, x:Int, y:Int):Void
         current_context.uniform2i(location, x, y);
 
     public static function uniform2iv(location:GLUniformLocation, data:Int32Array):Void
-        current_context.uniform2iv(location, untyped data.buffer.b);
+        current_context.uniform2iv(location, data);
 
     public static function uniform3f(location:GLUniformLocation, x:Float, y:Float, z:Float):Void
         current_context.uniform3f(location, x, y, z);
 
     public static function uniform3fv(location:GLUniformLocation, data:Float32Array):Void
-        current_context.uniform3fv(location, untyped data.buffer.b);
+        current_context.uniform3fv(location, data);
 
     public static function uniform3i(location:GLUniformLocation, x:Int, y:Int, z:Int):Void
         current_context.uniform3i(location, x, y, z);
 
     public static function uniform3iv(location:GLUniformLocation, data:Int32Array):Void
-        current_context.uniform3iv(location, untyped data.buffer.b);
+        current_context.uniform3iv(location, data);
 
     public static function uniform4f(location:GLUniformLocation, x:Float, y:Float, z:Float, w:Float):Void
         current_context.uniform4f(location, x, y, z, w);
 
     public static function uniform4fv(location:GLUniformLocation, data:Float32Array):Void
-        current_context.uniform4fv(location, untyped data.buffer.b);
+        current_context.uniform4fv(location, data);
 
     public static function uniform4i(location:GLUniformLocation, x:Int, y:Int, z:Int, w:Int):Void
         current_context.uniform4i(location, x, y, z, w);
 
     public static function uniform4iv(location:GLUniformLocation, data:Int32Array):Void
-        current_context.uniform4iv(location, untyped data.buffer.b);
+        current_context.uniform4iv(location, data);
 
     public static function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool, data:Float32Array):Void
-        current_context.uniformMatrix2fv(location, transpose, untyped data.buffer.b);
+        current_context.uniformMatrix2fv(location, transpose, data);
 
     public static function uniformMatrix3fv(location:GLUniformLocation, transpose:Bool, data:Float32Array):Void
-        current_context.uniformMatrix3fv(location, transpose, untyped data.buffer.b);
+        current_context.uniformMatrix3fv(location, transpose, data);
 
     public static function uniformMatrix4fv(location:GLUniformLocation, transpose:Bool, data:Float32Array):Void
-        current_context.uniformMatrix4fv(location, transpose, untyped data.buffer.b);
+        current_context.uniformMatrix4fv(location, transpose, data);
 
     public static function useProgram(program:GLProgram):Void
         current_context.useProgram(program);
@@ -427,25 +427,25 @@ class GL {
         current_context.vertexAttrib1f(indx, x);
 
     public static function vertexAttrib1fv(indx:Int, data:Float32Array):Void
-        current_context.vertexAttrib1fv(indx, untyped data.buffer.b);
+        current_context.vertexAttrib1fv(indx, data);
 
     public static function vertexAttrib2f(indx:Int, x:Float, y:Float):Void
         current_context.vertexAttrib2f(indx, x, y);
 
     public static function vertexAttrib2fv(indx:Int, data:Float32Array):Void
-        current_context.vertexAttrib2fv(indx, untyped data.buffer.b);
+        current_context.vertexAttrib2fv(indx, data);
 
     public static function vertexAttrib3f(indx:Int, x:Float, y:Float, z:Float):Void
         current_context.vertexAttrib3f(indx, x, y, z);
 
     public static function vertexAttrib3fv(indx:Int, data:Float32Array):Void
-        current_context.vertexAttrib3fv(indx, untyped data.buffer.b);
+        current_context.vertexAttrib3fv(indx, data);
 
     public static function vertexAttrib4f(indx:Int, x:Float, y:Float, z:Float, w:Float):Void
         current_context.vertexAttrib4f(indx, x, y, z, w);
 
     public static function vertexAttrib4fv(indx:Int, data:Float32Array):Void
-        current_context.vertexAttrib4fv(indx, untyped data.buffer.b);
+        current_context.vertexAttrib4fv(indx, data);
 
     public static function vertexAttribPointer(indx:Int, size:Int, type:Int, normalized:Bool, stride:Int, offset:Int):Void
         current_context.vertexAttribPointer(indx, size, type, normalized, stride, offset);

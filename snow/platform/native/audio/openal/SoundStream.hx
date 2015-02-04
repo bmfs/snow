@@ -108,7 +108,7 @@ class SoundStream extends snow.platform.native.audio.SoundStream {
         var _blob : AudioDataBlob = data_get( -1, buffer_length );
 
         if(_blob != null && _blob.bytes != null && _blob.bytes.length != 0) {
-            AL.bufferData( _buffer, format, Float32Array.fromBuffer(_blob.bytes), _blob.bytes.length, info.data.rate ); AL.getError();
+            AL.bufferData( _buffer, format, new Float32Array(_blob.bytes), _blob.bytes.length, info.data.rate ); AL.getError();
         }
 
         return _blob;

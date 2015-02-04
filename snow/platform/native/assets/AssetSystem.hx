@@ -54,7 +54,7 @@ import snow.Log._verboser;
                 width_actual : _native_info.width,
                 height_actual : _native_info.height,
                 bpp_source : _native_info.bpp_source,
-                data : Uint8Array.fromBuffer( _native_info.data )
+                data : new Uint8Array( _native_info.data )
             };
 
         } //native_info != null
@@ -75,6 +75,7 @@ import snow.Log._verboser;
     override public function image_info_from_bytes( _path:String, _bytes:ByteArray, ?_components:Int = 4 ) : ImageInfo {
 
         var _native_info = snow_assets_image_info_from_bytes( _path, _bytes, _components );
+        var bytes : haxe.io.Bytes = _native_info.data;
 
         var info : ImageInfo = {
             id : _native_info.id,
@@ -84,7 +85,7 @@ import snow.Log._verboser;
             width_actual : _native_info.width,
             height_actual : _native_info.height,
             bpp_source : _native_info.bpp_source,
-            data : Uint8Array.fromBuffer( _native_info.data )
+            data : new Uint8Array( bytes )
         };
 
         _native_info = null;
