@@ -1,0 +1,32 @@
+<xml>
+
+
+<!-- Paths -->
+
+    <!-- where to base builds from -->
+    <set name="SNOW_PATH" value="${haxelib:snow}" />
+    <set name="SNOW_PROJECT_ROOT" value="${SNOW_PATH}/project" />
+
+    <!-- important paths -->
+    <set name="SNOW_SRC_PATH" value="${SNOW_PROJECT_ROOT}/src" />
+    <set name="SNOW_INCLUDE_PATH" value="${SNOW_PROJECT_ROOT}/include" />
+
+    <!-- dependency paths -->
+   <set name="NATIVE_TOOLKIT_PATH" value="${SNOW_PROJECT_ROOT}/src/libs" />
+
+<!-- Flags/defines -->
+
+      <!-- consistency, ios is a better define than iphone and should always be used in snow instead -->
+   <set name="ios" value="1" if="iphone" />
+
+<!-- Flags / Libs  -->
+
+      <!-- can disable opengl include / linking here -->
+   <set name="SNOW_USE_OPENGL"  value="1"/>
+      <!-- sometimes glew needs to be disabled because it can make null function pointers -->
+   <set name="SNOW_LIB_GLEW" value="1" unless="android || ios"/>
+
+
+<!-- Other -->
+
+</xml>

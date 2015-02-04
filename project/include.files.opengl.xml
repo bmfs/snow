@@ -1,0 +1,35 @@
+
+<xml>
+
+<!-- include all default snow flags/defines -->
+
+    <include name="include.snow.common.xml" />
+    <error value="Can't find snow SNOW_SRC_PATH include?" unless="SNOW_SRC_PATH"/>
+    <error value="Can't find snow NATIVE_TOOLKIT_PATH include?" if="SNOW_LIB_GLEW" unless="NATIVE_TOOLKIT_PATH"/>
+
+<!-- includes -->
+
+    <include name="${NATIVE_TOOLKIT_PATH}/glew/files.xml" if="SNOW_LIB_GLEW"/>
+
+<!-- Definitions -->
+
+    <files id="snow-files-opengl" if="SNOW_USE_OPENGL">
+
+            <!-- file compiler flags -->
+        <compilerflag value="-I${SNOW_INCLUDE_PATH}"/>
+        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/glew/include/"/>
+
+        <!-- file compiler flags -->
+        <compilerflag value="-DSNOW_USE_OPENGL" />
+        <compilerflag value="-DGL_GLEXT_PROTOTYPES"/>
+        <compilerflag value="-DSNOW_GLES"              if="android || ios"/>
+
+        <!-- additional files -->
+        <file name="${SNOW_SRC_PATH}/render/opengl/snow_render_opengl.cpp" />
+
+        <!-- dependency defines -->
+        <include name="${NATIVE_TOOLKIT_PATH}/glew/defines.xml" if="SNOW_LIB_GLEW" />
+
+    </files>
+
+</xml>

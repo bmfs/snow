@@ -147,9 +147,13 @@ abstract GLProgram(GLPO) {
 }
 
 @:keep
-@:buildXml("<include name='${haxelib:snow}/project/include.snow.xml'/>")
+@:buildXml("
+    <include name='${haxelib:snow}/project/include.snow.common.xml'/>
+    <include name='${SNOW_PROJECT_ROOT}/include.snow.xml'/>
+    <include name='${SNOW_PROJECT_ROOT}/include.link.opengl.xml'/>
+")
 @:headerCode('#include "snow/platform/native/render/opengl/GLProxy.h"')
-class GLLink { }
+class GLLink {}
 
 @:keep
 @:include('snow/platform/native/render/opengl/GLProxy')

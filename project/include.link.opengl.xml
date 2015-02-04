@@ -1,0 +1,60 @@
+<xml>
+
+<!-- include all default snow flags/defines -->
+
+   <include name="include.snow.common.xml" />
+
+<!-- Linker specifics -->
+
+
+    <!-- For the application side -->
+    <target id='haxe'>
+
+        <section>
+            <section if="mac">
+                <vflag name="-framework" value="OpenGL" />
+             </section>
+
+            <section if="windows">
+                <lib name="opengl32.lib" />
+             </section>
+
+             <section if="linux">
+                <lib name="-lGL" />
+             </section>
+
+             <section if="android">
+                <lib name="-lEGL" />
+                <lib name="-lGLESv2" />
+                <lib name="-lGLESv1_CM" />
+             </section>
+        </section>
+
+    </target>
+
+    <!-- For building the snow target itself -->
+    <target id='snow'>
+
+        <section unless="static_link">
+            <section if="mac">
+                <vflag name="-framework" value="OpenGL" />
+             </section>
+
+            <section if="windows">
+                <lib name="opengl32.lib" />
+             </section>
+
+             <section if="linux">
+                <lib name="-lGL" />
+             </section>
+
+             <section if="android">
+                <lib name="-lEGL" />
+                <lib name="-lGLESv2" />
+                <lib name="-lGLESv1_CM" />
+             </section>
+        </section> <!-- !static -->
+
+    </target>
+
+</xml>

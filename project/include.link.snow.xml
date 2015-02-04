@@ -1,0 +1,63 @@
+<xml>
+
+    <!-- This file is included when building snow itself -->
+    <target id='snow' unless='static_link'>
+
+        <section if="mac">
+            <vflag name="-l" value="iconv"/>
+            <vflag name="-framework" value="IOKit" />
+            <vflag name="-framework" value="Foundation" />
+            <vflag name="-framework" value="CoreAudio" />
+            <vflag name="-framework" value="CoreVideo" />
+            <vflag name="-framework" value="Cocoa" />
+            <vflag name="-framework" value="AudioToolbox" />
+            <vflag name="-framework" value="AudioUnit" />
+            <vflag name="-framework" value="ForceFeedback" />
+            <vflag name="-framework" value="Carbon" />
+            <vflag name="-framework" value="AppKit" />
+            <vflag name="-framework" value="OpenAL"/>
+         </section> <!-- mac -->
+
+        <section if="windows">
+            <lib name="gdi32.lib" />
+            <lib name="user32.lib" />
+            <lib name="kernel32.lib" />
+            <lib name="advapi32.lib" />
+            <lib name="winmm.lib" />
+            <lib name="imm32.lib"  />
+            <lib name="ole32.lib" />
+            <lib name="oleaut32.lib" />
+            <lib name="version.lib" />
+            <lib name="ws2_32.lib"  />
+            <lib name="wldap32.lib" />
+            <lib name="shell32.lib" />
+            <lib name="comdlg32.lib" />
+         </section> <!-- windows -->
+
+         <section if="linux">
+
+            <lib name="${HXCPP}/lib/${BINDIR}/liblinuxcompat.a" />
+            <lib name="-lpthread" />
+            <lib name="-lrt" />
+
+         </section> <!-- linux -->
+
+         <section if="android">
+            <lib name="-Wl,--undefined=Java_org_libsdl_app_SDLActivity_nativeInit" if="SNOW_USE_SDL"/>
+            <lib name="-ldl" />
+            <lib name="-llog" />
+            <lib name="-landroid" />
+            <lib name="-lOpenSLES" />
+         </section> <!-- android -->
+
+    </target> <!-- snow_link_flags -->
+
+
+<!-- dependencies -->
+
+    <include name="include.link.opengl.xml"/>
+    <!-- gtk is used for file dialogs on linux only atm -->
+    <include name="include.link.gtk.xml" if="linux" unless="SNOW_NO_GTK"/>
+
+
+</xml>

@@ -23,23 +23,16 @@
       <set name="PLATFORM" value="android-14" if="HXCPP_X86" />
    </section>
 
-<!-- Build set up -->
+<!-- Setup common info -->
 
       <!-- included to import existing defines and built in defined values -->
    <include name="${HXCPP}/build-tool/BuildCommon.xml"/>
-      <!-- consistency, ios is a better define than iphone and should always be used in snow instead -->
-   <set name="ios" value="1" if="iphone" />
+      <!-- include all default snow flags/defines -->
+   <include name="include.snow.common.xml" />
 
-      <!-- where to build from -->
-   <!-- <set name="SNOW_ROOT" value="${haxelib:snow}/project/" /> -->
-   <set name="SNOW_ROOT" value="" />
-      <!-- paths -->
-   <set name="SRC_DIR" value="${SNOW_ROOT}src" />
-   <set name="INC_DIR" value="${SNOW_ROOT}include" />
+<!-- Build set up -->
 
-   <set name="NATIVE_TOOLKIT_PATH" value="${SNOW_ROOT}src/libs" />
-
-   <set name="SNOW_INC_DIR" value="${SNOW_ROOT}../include" />
+   <set name="SNOW_INC_DIR" value="${SNOW_PROJECT_ROOT}../include" />
    <set name="OUT_DIR" value="../ndll" />
       <!-- lib values -->
    <set name="LIBNAME" value="snow" />
@@ -61,22 +54,10 @@
 <!-- Core snow configs -->
 
    <set name="SNOW_CORE_LOOP"   value="1"     unless="ios"/>
-      <!-- are we using OpenGL bindings? -->
-   <set name="SNOW_USE_OPENGL"  value="1"/>
-      <!-- are we using OpenAL bindings? -->
+      <!-- are we using OpenAL? -->
    <set name="SNOW_USE_OPENAL"  value="1"/>
-      <!-- are we using SDL bindings? -->
+      <!-- are we using SDL? -->
    <set name="SNOW_USE_SDL"     value="1"/>
-
-      <!-- are we using gtk3 or 2 for file dialogs, or none? -->
-   <!-- <set name="SNOW_USE_GTK2"    value="1"/> -->
-   <set name="SNOW_USE_GTK3"    value="1"/>
-   <!-- <set name="SNOW_NO_GTK"    value="1"/> -->
-   <set name="SNOW_GTK_PATH" value="/usr/lib/x86_64-linux-gnu/gtk-2.0" if="HXCPP_M64"/>
-   <set name="SNOW_GTK_GLIB_PATH" value="/usr/lib/x86_64-linux-gnu/glib-2.0" if="HXCPP_M64"/>
-
-   <set name="SNOW_GTK_PATH" value="/usr/lib/i386-linux-gnu/gtk-2.0" unless="HXCPP_M64"/>
-   <set name="SNOW_GTK_GLIB_PATH" value="/usr/lib/i386-linux-gnu/glib-2.0" unless="HXCPP_M64"/>
 
 <!-- Porting only -->
 
@@ -90,13 +71,7 @@
       <!-- should we build SDL files -->
    <set name="SNOW_LIB_SDL" value="1" if="SNOW_USE_SDL"/>
    <set name="NATIVE_TOOLKIT_SDL_STATIC" value="1" if="SNOW_USE_SDL"/>
-   <!-- enable this to build sdl as a .a file, and then link it (instead of embedded in the core code) -->
-   <!-- <set name="SNOW_LIB_SDL_STATIC_EXTERNAL" value="1" /> -->
-   <!-- enable this to build sdl as a .so/.dll file, and then link it (instead of embedded in the core code) -->
-   <!-- <set name="SNOW_LIB_SDL_SHARED_EXTERNAL" value="1" /> -->
 
-      <!-- sometimes glew needs to be disabled because it can make null function pointers -->
-   <set name="SNOW_LIB_GLEW" value="1" unless="android || ios"/>
       <!-- always using OpenAL for main platforms by default -->
    <set name="SNOW_LIB_OPENAL" value="1"/>
       <!-- always using stb_image for main platforms by default -->
@@ -111,18 +86,9 @@
    <set name="SNOW_LIB_THEORA" value="1" />
    <set name="SNOW_LIB_VORBIS" value="1" />
 
-      <!-- always including curl for main platforms by default -->
-   <!-- <set name="SNOW_LIB_CURL" value="0" /> -->
-      <!-- default to using SSL, but can be toggled -->
-   <set name="NATIVE_TOOLKIT_CURL_SSL" value="1" if="SNOW_LIB_CURL"/>
-
-      <!-- Disable to remove gtk dependency, but save/load dialogs will not show -->
-   <!-- <set name="SNOW_NO_GTK" value="1" /> -->
-
 <!-- Files/Sources -->
 
       <!-- include linked third party libs -->
-   <include name="${NATIVE_TOOLKIT_PATH}/glew/files.xml"             if="SNOW_LIB_GLEW" />
    <include name="${NATIVE_TOOLKIT_PATH}/stb_image/files.xml"        if="SNOW_LIB_STB_IMAGE" />
    <include name="${NATIVE_TOOLKIT_PATH}/ogg/files.xml"              if="SNOW_LIB_OGG" />
    <include name="${NATIVE_TOOLKIT_PATH}/theora/files.xml"           if="SNOW_LIB_THEORA" />
@@ -134,14 +100,16 @@
    <include name="${NATIVE_TOOLKIT_PATH}/openal-android/files.xml"   if="android"/>
    <include name="${NATIVE_TOOLKIT_PATH}/openal/files.xml"           unless="mac || ios || android"/>
 
+      <!-- snow source backing includes -->
+   <include name="${SNOW_PROJECT_ROOT}/include.files.opengl.xml"/>
+
       <!-- snow build files -->
    <files id="snow">
 
          <!-- include paths -->
       <compilerflag value="-I${SNOW_INC_DIR}"/>
-      <compilerflag value="-I${INC_DIR}"/>
+      <compilerflag value="-I${SNOW_INCLUDE_PATH}"/>
 
-      <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/glew/include/"/>
       <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/stb_image/include/"/>
       <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/ogg/include/"/>
       <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/vorbis/include/"/>
@@ -161,32 +129,22 @@
    <!-- snow sources -->
 
          <!-- bindings -->
-      <file name="${SRC_DIR}/snow_hx_bindings.cpp" />
+      <file name="${SNOW_SRC_PATH}/snow_hx_bindings.cpp" />
          <!-- assets -->
-      <file name="${SRC_DIR}/assets/snow_assets_image.cpp" />
-      <file name="${SRC_DIR}/assets/snow_assets_audio.cpp" />
+      <file name="${SNOW_SRC_PATH}/assets/snow_assets_image.cpp" />
+      <file name="${SNOW_SRC_PATH}/assets/snow_assets_audio.cpp" />
          <!-- common utils -->
-      <file name="${SRC_DIR}/common/ByteArray.cpp" />
+      <file name="${SNOW_SRC_PATH}/common/ByteArray.cpp" />
          <!-- snow core -->
-      <file name="${SRC_DIR}/snow/snow_timestamp.cpp" />
+      <file name="${SNOW_SRC_PATH}/snow/snow_timestamp.cpp" />
 
    <!-- core options -->
-
-      <section if="SNOW_USE_OPENGL">
-
-         <compilerflag value="-DSNOW_USE_OPENGL" />
-         <compilerflag value="-DGL_GLEXT_PROTOTYPES"/>
-         <compilerflag value="-DSNOW_GLES"              if="android || ios"/>
-
-         <file name="${SRC_DIR}/render/opengl/snow_render_opengl.cpp" />
-
-      </section>
 
       <section if="SNOW_USE_OPENAL">
 
          <compilerflag value="-DSNOW_USE_OPENAL" />
 
-         <file name="${SRC_DIR}/audio/openal/snow_audio_openal.cpp" />
+         <file name="${SNOW_SRC_PATH}/audio/openal/snow_audio_openal.cpp" />
 
       </section>
 
@@ -201,13 +159,13 @@
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/"    if="windows"/>
         <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/"        if="mac"/>
 
-        <file name="${SRC_DIR}/snow/sdl2/snow_core_sdl2.cpp" />
-        <file name="${SRC_DIR}/io/sdl2/snow_io_sdl2.cpp" />
-        <file name="${SRC_DIR}/window/sdl2/snow_window_sdl2.cpp"/>
-        <file name="${SRC_DIR}/input/sdl2/snow_input_sdl2.cpp"/>
+        <file name="${SNOW_SRC_PATH}/snow/sdl2/snow_core_sdl2.cpp" />
+        <file name="${SNOW_SRC_PATH}/io/sdl2/snow_io_sdl2.cpp" />
+        <file name="${SNOW_SRC_PATH}/window/sdl2/snow_window_sdl2.cpp"/>
+        <file name="${SNOW_SRC_PATH}/input/sdl2/snow_input_sdl2.cpp"/>
 
             <!-- platform specific helpers -->
-        <file name="${SRC_DIR}/platform/windows/snow_windows_window_sdl2.cpp"          if="windows"/>
+        <file name="${SNOW_SRC_PATH}/platform/windows/snow_windows_window_sdl2.cpp"          if="windows"/>
 
       </section>
 
@@ -217,75 +175,42 @@
 
       <compilerflag value="-DSNOW_USE_EMPTY_PLATFORM" />
 
-      <file name="${SRC_DIR}/snow/empty/snow_empty_platform.cpp"/>
+      <file name="${SNOW_SRC_PATH}/snow/empty/snow_empty_platform.cpp"/>
 
    </section>
 
    <!-- Platform specific sources -->
 
       <section if="mac">
-         <file name="${SRC_DIR}/platform/mac/snow_mac.mm"/>
-         <file name="${SRC_DIR}/platform/mac/snow_mac_filewatch.mm"/>
-         <file name="${SRC_DIR}/platform/mac/snow_mac_filedialogs.mm"/>
+         <file name="${SNOW_SRC_PATH}/platform/mac/snow_mac.mm"/>
+         <file name="${SNOW_SRC_PATH}/platform/mac/snow_mac_filewatch.mm"/>
+         <file name="${SNOW_SRC_PATH}/platform/mac/snow_mac_filedialogs.mm"/>
       </section>
 
       <section if="linux">
-
-            <compilerflag value="-DSNOW_NO_GTK" if="SNOW_NO_GTK"/>
-
-
-               <!-- For the file dialogs. These are from `pkg-config --cflags gtk+-3.0` and `pkg-config --cflags gtk+-2.0` but
-                  hxcpp doesn't support that, so they are manually inserted -->
-
-                  <!-- gtk 3 only -->
-            <compilerflag value="-I/usr/include/gtk-3.0" unless="SNOW_NO_GTK" if="SNOW_USE_GTK3"/>
-            <compilerflag value="-I${SNOW_GTK_GLIB_PATH}/include" unless="SNOW_NO_GTK" if="SNOW_USE_GTK3"/>
-               
-                  <!-- gtk 2 and 3 -->
-            <compilerflag value="-I/usr/include/libpng12" unless="SNOW_NO_GTK"/>
-            <compilerflag value="-I/usr/include/atk-1.0" unless="SNOW_NO_GTK"/>
-            <compilerflag value="-I/usr/include/cairo" unless="SNOW_NO_GTK"/>
-            <compilerflag value="-I/usr/include/gdk-pixbuf-2.0" unless="SNOW_NO_GTK"/>
-            <compilerflag value="-I/usr/include/pango-1.0" unless="SNOW_NO_GTK"/>
-            <compilerflag value="-I/usr/include/gio-unix-2.0/" unless="SNOW_NO_GTK"/>
-            <compilerflag value="-I/usr/include/freetype2" unless="SNOW_NO_GTK"/>
-            <compilerflag value="-I/usr/include/glib-2.0" unless="SNOW_NO_GTK"/>
-            <compilerflag value="-I/usr/include/pixman-1" unless="SNOW_NO_GTK"/>
-
-               <!-- gtk 2 only -->
-            <compilerflag value="-I/usr/include/gtk-2.0" unless="SNOW_NO_GTK" if="SNOW_USE_GTK2"/> 
-            <compilerflag value="-I${SNOW_GTK_PATH}/include" unless="SNOW_NO_GTK" if="SNOW_USE_GTK2"/> 
-            <compilerflag value="-I${SNOW_GTK_GLIB_PATH}/include" unless="SNOW_NO_GTK" if="SNOW_USE_GTK2"/> 
-            <compilerflag value="-I/usr/include/harfbuzz" unless="SNOW_NO_GTK" if="SNOW_USE_GTK2"/>
-
-         <file name="${SRC_DIR}/platform/linux/snow_linux.cpp"/>
-         <file name="${SRC_DIR}/platform/linux/snow_linux_filewatch.cpp"/>
-         <file name="${SRC_DIR}/platform/linux/snow_linux_filedialogs.cpp"/>
-
+         <file name="${SNOW_SRC_PATH}/platform/linux/snow_linux.cpp"/>
+         <file name="${SNOW_SRC_PATH}/platform/linux/snow_linux_filewatch.cpp"/>
+         <file name="${SNOW_SRC_PATH}/platform/linux/snow_linux_filedialogs.cpp"/>
       </section>
 
       <section if="windows">
-         <file name="${SRC_DIR}/platform/windows/snow_windows.cpp"/>
-         <file name="${SRC_DIR}/platform/windows/snow_windows_filewatch.cpp"/>
-         <file name="${SRC_DIR}/platform/windows/snow_windows_filedialogs.cpp"/>
+         <file name="${SNOW_SRC_PATH}/platform/windows/snow_windows.cpp"/>
+         <file name="${SNOW_SRC_PATH}/platform/windows/snow_windows_filewatch.cpp"/>
+         <file name="${SNOW_SRC_PATH}/platform/windows/snow_windows_filedialogs.cpp"/>
       </section>
 
       <section if="android">
-         <file name="${SRC_DIR}/platform/android/snow_android.cpp"/>
+         <file name="${SNOW_SRC_PATH}/platform/android/snow_android.cpp"/>
       </section>
 
       <section if="ios">
-         <file name="${SRC_DIR}/platform/ios/snow_ios.mm"/>
+         <file name="${SNOW_SRC_PATH}/platform/ios/snow_ios.mm"/>
       </section>
 
    <!-- Library specific flags -->
 
       <section if="SNOW_LIB_CURL">
          <include name="${NATIVE_TOOLKIT_PATH}/curl/defines.xml" />
-      </section>
-
-      <section if="SNOW_LIB_GLEW">
-         <include name="${NATIVE_TOOLKIT_PATH}/glew/defines.xml" />
       </section>
 
       <section if="SNOW_LIB_LZMA">
@@ -329,14 +254,12 @@
 
 <!-- Targets -->
 
-
-
-   <target id="snow" output="${LIBPREFIX}${LIBNAME}${DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
+   <!-- root snow target -->
+   <target id='snow' output="${LIBPREFIX}${LIBNAME}${DEBUGEXTRA}${LIBEXTRA}" tool="linker" toolid="${STD_MODULE_LINK}">
 
       <outdir name="${OUT_DIR}/${BINDIR}" />
 
 <!-- Build the libs -->
-
       <files id="native-toolkit-glew"           if="SNOW_LIB_GLEW"/>
       <files id="native-toolkit-curl"           if="SNOW_LIB_CURL"/>
       <files id="native-toolkit-lzma"           if="SNOW_LIB_LZMA"/>
@@ -345,7 +268,7 @@
       <files id="native-toolkit-theora"         if="SNOW_LIB_THEORA"/>
       <files id="native-toolkit-vorbis"         if="SNOW_LIB_VORBIS"/>
       <files id="native-toolkit-zlib"           if="SNOW_LIB_ZLIB"/>
-      <files id="native-toolkit-sdl"            if="SNOW_LIB_SDL"      unless="SNOW_LIB_SDL_STATIC_EXTERNAL || SNOW_LIB_SDL_SHARED_EXTERNAL"/>
+      <files id="native-toolkit-sdl"            if="SNOW_LIB_SDL"/>
 
       <section if="SNOW_LIB_OPENAL">
          <files id="native-toolkit-openal-android" if="android"/>
@@ -357,114 +280,26 @@
 
          <!-- build the snow sources -->
       <files id="snow"/>
+         <!-- and other snow sources -->
+      <files id="snow-files-opengl"/>
+
 
 <!-- Linking flags and libraries -->
-
-      <section if="SNOW_LIB_SDL">
-         <lib name="${PRELIB}SDL2${POSTLIB}"       if="SNOW_LIB_SDL_STATIC_EXTERNAL"/>
-         <lib name="${PRELIB}SDL2${POSTSHAREDLIB}" if="SNOW_LIB_SDL_SHARED_EXTERNAL"/>
-      </section>
 
       <section unless="static_link">
 
          <ext value=".so" />
          <ext value=".ndll" if="windows || mac || linux" />
 
-         <section if="windows">
-            <lib name="gdi32.lib" />
-            <lib name="opengl32.lib" />
-            <lib name="user32.lib" />
-            <lib name="kernel32.lib" />
-            <lib name="advapi32.lib" />
-            <lib name="winmm.lib" />
-            <lib name="imm32.lib"  />
-            <lib name="ole32.lib" />
-            <lib name="oleaut32.lib" />
-            <lib name="version.lib" />
-            <lib name="ws2_32.lib"  />
-            <lib name="wldap32.lib" />
-            <lib name="shell32.lib" />
-            <lib name="comdlg32.lib" />
-         </section> <!-- windows -->
-
-         <section if="linux">
-            <lib name="${HXCPP}/lib/${BINDIR}/liblinuxcompat.a" />
-            <lib name="-lpthread" />
-            <lib name="-lrt" />
-            <lib name="-lGL" />
-
-                <!-- These are from `pkg-config --libs gtk+-3.0` -->
-            <lib name="-lgtk-3"  unless="SNOW_NO_GTK" if="SNOW_USE_GTK3"/>
-            <lib name="-lgdk-3" unless="SNOW_NO_GTK" if="SNOW_USE_GTK3"/>
-            <lib name="-lcairo-gobject" unless="SNOW_NO_GTK" if="SNOW_USE_GTK3"/>
-               
-               <!-- from both gtk3 and gtk2 -->
-            <lib name="-latk-1.0" unless="SNOW_NO_GTK"/>
-            <lib name="-lgio-2.0" unless="SNOW_NO_GTK"/>
-            <lib name="-lpangocairo-1.0" unless="SNOW_NO_GTK"/>
-            <lib name="-lgdk_pixbuf-2.0" unless="SNOW_NO_GTK"/>
-            <lib name="-lpango-1.0" unless="SNOW_NO_GTK"/>
-            <lib name="-lcairo" unless="SNOW_NO_GTK"/>
-            <lib name="-lgobject-2.0" unless="SNOW_NO_GTK"/>
-            <lib name="-lglib-2.0"  unless="SNOW_NO_GTK"/>
-
-               <!-- These are from `pkg-config --libs gtk+-2.0` -->
-            <lib name="-lgtk-x11-2.0" unless="SNOW_NO_GTK" if="SNOW_USE_GTK2"/> 
-            <lib name="-lgdk-x11-2.0" unless="SNOW_NO_GTK" if="SNOW_USE_GTK2"/> 
-            <lib name="-lpangoft2-1.0" unless="SNOW_NO_GTK" if="SNOW_USE_GTK2"/> 
-            <lib name="-lfontconfig" unless="SNOW_NO_GTK" if="SNOW_USE_GTK2"/> 
-            <lib name="-lfreetype" unless="SNOW_NO_GTK" if="SNOW_USE_GTK2"/>
-
-         </section> <!-- linux -->
-
-         <section if="mac">
-            <vflag name="-l" value="iconv"/>
-            <vflag name="-framework" value="IOKit" />
-            <vflag name="-framework" value="Foundation" />
-            <vflag name="-framework" value="CoreAudio" />
-            <vflag name="-framework" value="CoreVideo" />
-            <vflag name="-framework" value="Cocoa" />
-            <vflag name="-framework" value="OpenGL" />
-            <vflag name="-framework" value="AudioToolbox" />
-            <vflag name="-framework" value="AudioUnit" />
-            <vflag name="-framework" value="ForceFeedback" />
-            <vflag name="-framework" value="Carbon" />
-            <vflag name="-framework" value="AppKit" />
-            <vflag name="-framework" value="OpenAL"/>
-         </section> <!-- mac -->
-
-         <section if="ios">
-
-         </section>
-
-         <section if="android">
-            <lib name="-Wl,--undefined=Java_org_libsdl_app_SDLActivity_nativeInit" if="SNOW_USE_SDL"/>
-            <lib name="-ldl" />
-            <lib name="-llog" />
-            <lib name="-landroid" />
-            <lib name="-lEGL" />
-            <lib name="-lGLESv2" />
-            <lib name="-lGLESv1_CM" />
-            <lib name="-lOpenSLES" />
-         </section> <!-- android -->
-
       </section> <!-- unless static_link -->
 
    </target>
 
-
+   <!-- It's important that this come after the initial snow definition -->
+   <include name="include.link.snow.xml" />
 
    <target id="default">
-
-         <!-- if we have sdl set to build as static but not embedded, build it -->
-      <target id="libs-sdl" if="SNOW_LIB_SDL_STATIC_EXTERNAL"/>
-         <!-- if we have sdl set to build as shared, build it -->
-      <target id="libs-sdl-shared" if="SNOW_LIB_SDL_SHARED_EXTERNAL"/>
-         <!--  -->
-      <target id="snow" unless="no_snow"/>
-
+      <target id='snow' unless='no_snow'/>
    </target>
-
-
 
 </xml>

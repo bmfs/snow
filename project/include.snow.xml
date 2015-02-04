@@ -1,5 +1,8 @@
 <xml>
+
+    <include name="include.snow.common.xml" />
+
     <files id='haxe'>
-        <compilerflag value='-I${haxelib:snow}/project/include/'/>
+        <compilerflag value='-I${SNOW_INCLUDE_PATH}'/>
     </files>
 </xml>
