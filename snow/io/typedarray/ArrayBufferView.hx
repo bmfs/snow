@@ -126,20 +126,20 @@ package snow.io.typedarray;
 
 
     //Public shared APIs
-        #if !no_typedarray_inline inline #end
-        public function set( view:ArrayBufferView, offset:Int = 0 ) : Void {
 
+    //T is required because it can translate [0,0] as Int array
+        #if !no_typedarray_inline inline #end
+    public function set<T>( ?view:ArrayBufferView, ?array:Array<T>, offset:Int = 0 ) : Void {
+
+        if(view != null && array == null) {
             buffer.blit( toByteLength(offset), view.buffer, view.byteOffset, view.buffer.length );
-
-        }
-
-        @:generic
-        #if !no_typedarray_inline inline #end
-        public function setFromArray<T>( ?array:Array<T>, offset:Int = 0 ) {
-
+        } else if(array != null && view == null) {
             copyFromArray(cast array, offset);
-
+        } else {
+            throw "Invalid .set call. either view, or array must be not-null.";
         }
+
+    }
 
 
     //Internal TypedArray api

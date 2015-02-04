@@ -2,7 +2,36 @@ package snow.io.typedarray;
 
 #if js
 
-    typedef Uint8Array = js.html.Uint8Array;
+    @:forward
+    @:arrayAccess
+    abstract Uint8Array(js.html.Uint8Array)
+        from js.html.Uint8Array
+        to js.html.Uint8Array {
+
+        public inline function new(
+            ?elements:Int,
+            ?array:Array<Float>,
+            ?view:ArrayBufferView,
+            ?buffer:ArrayBuffer, ?byteoffset:Int = 0, ?len:Null<Int>
+        ) {
+            if(elements != null) {
+                this = new js.html.Uint8Array( elements );
+            } else if(array != null) {
+                this = new js.html.Uint8Array( untyped array );
+            } else if(view != null) {
+                this = new js.html.Uint8Array( untyped view );
+            } else if(buffer != null) {
+                len = (len == null) ? untyped __js__('undefined') : len;
+                this = new js.html.Uint8Array( buffer, byteoffset, len );
+            } else {
+                this = null;
+            }
+        }
+
+        @:arrayAccess inline function __set(idx:Int, val:UInt) return this[idx] = val;
+        @:arrayAccess inline function __get(idx:Int) : UInt return this[idx];
+
+    }
 
 #else
 

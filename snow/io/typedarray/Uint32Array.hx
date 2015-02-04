@@ -2,7 +2,36 @@ package snow.io.typedarray;
 
 #if js
 
-    typedef Uint32Array = js.html.Uint32Array;
+    @:forward
+    @:arrayAccess
+    abstract Uint32Array(js.html.Uint32Array)
+        from js.html.Uint32Array
+        to js.html.Uint32Array {
+
+        public inline function new(
+            ?elements:Int,
+            ?array:Array<Float>,
+            ?view:ArrayBufferView,
+            ?buffer:ArrayBuffer, ?byteoffset:Int = 0, ?len:Null<Int>
+        ) {
+            if(elements != null) {
+                this = new js.html.Uint32Array( elements );
+            } else if(array != null) {
+                this = new js.html.Uint32Array( untyped array );
+            } else if(view != null) {
+                this = new js.html.Uint32Array( untyped view );
+            } else if(buffer != null) {
+                len = (len == null) ? untyped __js__('undefined') : len;
+                this = new js.html.Uint32Array( buffer, byteoffset, len );
+            } else {
+                this = null;
+            }
+        }
+
+        @:arrayAccess inline function __set(idx:Int, val:UInt) return this[idx] = val;
+        @:arrayAccess inline function __get(idx:Int) : UInt return this[idx];
+
+    }
 
 #else
 

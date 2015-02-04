@@ -2,7 +2,43 @@ package snow.io.typedarray;
 
 #if js
 
-    typedef Uint8ClampedArray = js.html.Uint8ClampedArray;
+    @:forward
+    @:arrayAccess
+    abstract Uint8ClampedArray(js.html.Uint8ClampedArray)
+        from js.html.Uint8ClampedArray
+        to js.html.Uint8ClampedArray {
+
+        public inline function new(
+            ?elements:Int,
+            ?array:Array<Float>,
+            ?view:ArrayBufferView,
+            ?buffer:ArrayBuffer, ?byteoffset:Int = 0, ?len:Null<Int>
+        ) {
+            if(elements != null) {
+                this = new js.html.Uint8ClampedArray( elements );
+            } else if(array != null) {
+                this = new js.html.Uint8ClampedArray( untyped array );
+            } else if(view != null) {
+                this = new js.html.Uint8ClampedArray( untyped view );
+            } else if(buffer != null) {
+                len = (len == null) ? untyped __js__('undefined') : len;
+                this = new js.html.Uint8ClampedArray( buffer, byteoffset, len );
+            } else {
+                this = null;
+            }
+        }
+
+        @:arrayAccess inline function __set(idx:Int, val:UInt) return this[idx] = _clamp(val);
+        @:arrayAccess inline function __get(idx:Int) : UInt return this[idx];
+
+        //clamp a Int to a 0-255 Uint8
+        static function _clamp(_in:Float) : Int {
+            var _out = Std.int(_in);
+            _out = _out > 255 ? 255 : _out;
+            return _out < 0 ? 0 : _out;
+        } //_clamp
+
+    }
 
 #else
 
@@ -17,7 +53,13 @@ package snow.io.typedarray;
 
         public var length (get, never):Int;
 
-        public inline function new( ?elements:Int, ?array:Array<Float>, ?view:ArrayBufferView, ?buffer:ArrayBuffer, ?byteoffset:Int, ?len:Int ) {
+       public inline function new(
+            ?elements:Int,
+            ?array:Array<Float>,
+            ?view:ArrayBufferView,
+            ?buffer:ArrayBuffer, ?byteoffset:Int = 0, ?len:Null<Int>
+        ) {
+
             if(elements != null) {
                 this = new ArrayBufferView( elements, Uint8Clamped );
             } else if(array != null) {
@@ -33,7 +75,7 @@ package snow.io.typedarray;
 
     //Public API
 
-            //still busy with this
+        //these enforce the types needed
         public inline function subarray( begin:Int, end:Null<Int> = null) : Uint8ClampedArray return this.subarray(begin, end);
 
     //Internal

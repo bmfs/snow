@@ -280,4 +280,8 @@ class ArrayBufferIO {
 
 }
 
+#else
+
+    #error "ArrayBufferIO is not used on js target, use DataView instead"
+
 #end //!js
