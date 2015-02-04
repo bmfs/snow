@@ -192,7 +192,7 @@ import snow.Log._verboser;
                     //cleanup
                 tmp_canvas = null; tmp_context = null;
 
-                return image_bytes.data;
+                return new Uint8Array(image_bytes.data);
 
             } //POT_Uint8Array_from_image
 
