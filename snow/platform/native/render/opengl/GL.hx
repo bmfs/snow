@@ -151,6 +151,7 @@ abstract GLProgram(GLPO) {
     <include name='${haxelib:snow}/project/include.snow.common.xml'/>
     <include name='${SNOW_PROJECT_ROOT}/include.snow.xml'/>
     <include name='${SNOW_PROJECT_ROOT}/include.link.opengl.xml'/>
+    <include name='${SNOW_PROJECT_ROOT}/include.snow.opengl.xml'/>
 ")
 @:headerCode('#include "snow/platform/native/render/opengl/GLProxy.h"')
 class GLLink {}
@@ -914,8 +915,10 @@ extern class GL {
     namespace opengl{
 
             int create_texture() {
+                printf("%s\\n", "inside create texture");
                 unsigned int id = 0;
                 glGenTextures(1,&id);
+                printf("%s\\n", "after create texture");
                 return id;
             }
 
@@ -1084,7 +1087,7 @@ extern class GL {
                 if( HAS_EXT_framebuffer_object ) {
                     glGenFramebuffers( 1, &id );
                 } else {
-                    snow::log(1, "snow / framebuffer object extension not found. / createFramebuffer");
+                    printf("%s\\n", "snow / framebuffer object extension not found. / createFramebuffer");
                 }
                 return id;
             }
@@ -1093,7 +1096,7 @@ extern class GL {
                 if (HAS_EXT_framebuffer_object) {
                     return glIsFramebuffer(id);
                 } else {
-                    snow::log(1, "snow / framebuffer object extension not found. / IsFramebuffer");
+                    printf("%s\\n", "snow / framebuffer object extension not found. / IsFramebuffer");
                 }
                 return false;
             }
@@ -1102,7 +1105,7 @@ extern class GL {
                 if (HAS_EXT_framebuffer_object) {
                     return glIsRenderbuffer(id);
                 } else {
-                    snow::log(1, "snow / framebuffer object extension not found. / IsRenderbuffer");
+                    printf("%s\\n", "snow / framebuffer object extension not found. / IsRenderbuffer");
                 }
                 return false;
             }
@@ -1112,7 +1115,7 @@ extern class GL {
                 if( HAS_EXT_framebuffer_object ) {
                     glGenRenderbuffers( 1, &id );
                 } else {
-                    snow::log(1, "snow / framebuffer object extension not found. / createRenderbuffer");
+                    printf("%s\\n", "snow / framebuffer object extension not found. / createRenderbuffer");
                 }
                 return id;
             }
@@ -1121,7 +1124,7 @@ extern class GL {
                 if (HAS_EXT_framebuffer_object) {
                     glDeleteFramebuffers(1, (GLuint*)&id);
                 } else {
-                    snow::log(1, "snow / framebuffer object extension not found. / DeleteFramebuffers");
+                    printf("%s\\n", "snow / framebuffer object extension not found. / DeleteFramebuffers");
                 }
             }
 
@@ -1129,7 +1132,7 @@ extern class GL {
                 if (HAS_EXT_framebuffer_object) {
                     glDeleteRenderbuffers(1, (GLuint*)&id);
                 } else {
-                    snow::log(1, "snow / framebuffer object extension not found. / DeleteRenderbuffers");
+                    printf("%s\\n", "snow / framebuffer object extension not found. / DeleteRenderbuffers");
                 }
             }
 

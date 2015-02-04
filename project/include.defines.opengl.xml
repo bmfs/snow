@@ -1,0 +1,14 @@
+<xml>
+    <include name="include.snow.common.xml" />
+
+	<!-- file compiler flags to find GL -->
+    <compilerflag value="-I${SNOW_INCLUDE_PATH}"/>
+    <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/glew/include/"/>
+        <!-- specifics for SDL/GLEW etc -->
+    <compilerflag value="-DSNOW_USE_OPENGL" />
+    <compilerflag value="-DGL_GLEXT_PROTOTYPES"/>
+    <compilerflag value="-DSNOW_GLES"              if="android || ios"/>
+    <!-- dependency defines -->
+    <include name="${NATIVE_TOOLKIT_PATH}/glew/defines.xml" if="SNOW_LIB_GLEW" />
+
+</xml>

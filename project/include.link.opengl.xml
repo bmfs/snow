@@ -2,13 +2,17 @@
 
 <!-- include all default snow flags/defines -->
 
-   <include name="include.snow.common.xml" />
+    <include name="include.snow.common.xml" />
 
 <!-- Linker specifics -->
 
+    <include name="${NATIVE_TOOLKIT_PATH}/glew/files.xml" if="SNOW_LIB_GLEW"/>
 
     <!-- For the application side -->
     <target id='haxe'>
+
+        <!-- <files id="native-toolkit-glew" if="SNOW_LIB_GLEW" /> -->
+        <lib name="${SNOW_PATH}/ndll/${BINDIR}/snow.ndll"/>
 
         <section>
             <section if="mac">
@@ -34,6 +38,8 @@
 
     <!-- For building the snow target itself -->
     <target id='snow'>
+
+        <files id="native-toolkit-glew" if="SNOW_LIB_GLEW" />
 
         <section unless="static_link">
             <section if="mac">

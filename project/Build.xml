@@ -50,27 +50,9 @@
 
 <!-- Build configs -->
 
-
-<!-- Core snow configs -->
-
-   <set name="SNOW_CORE_LOOP"   value="1"     unless="ios"/>
-      <!-- are we using OpenAL? -->
-   <set name="SNOW_USE_OPENAL"  value="1"/>
-      <!-- are we using SDL? -->
-   <set name="SNOW_USE_SDL"     value="1"/>
-
-<!-- Porting only -->
-
-      <!-- Don't define this unless trying to test/implement the empty platform porting helpers -->
-   <!-- <set name="SNOW_USE_EMPTY_PLATFORM" value="1" /> -->
-
 <!-- Library configs -->
 
    <!-- Ideally, I want to enclose these in an "unless" section as well, so you can use command line/builds to disable them -->
-
-      <!-- should we build SDL files -->
-   <set name="SNOW_LIB_SDL" value="1" if="SNOW_USE_SDL"/>
-   <set name="NATIVE_TOOLKIT_SDL_STATIC" value="1" if="SNOW_USE_SDL"/>
 
       <!-- always using OpenAL for main platforms by default -->
    <set name="SNOW_LIB_OPENAL" value="1"/>
@@ -150,19 +132,12 @@
 
       <section if="SNOW_USE_SDL">
 
-         <compilerflag value="-DSNOW_USE_SDL" />
+         <include name="${SNOW_PROJECT_ROOT}/include.defines.sdl.xml"/>
 
-            <!-- per platform configs preconfigured -->
-        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/"/>
-        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/"    unless="windows || mac || linux"/>
-        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/"      if="linux"/>
-        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/"    if="windows"/>
-        <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/"        if="mac"/>
-
-        <file name="${SNOW_SRC_PATH}/snow/sdl2/snow_core_sdl2.cpp" />
-        <file name="${SNOW_SRC_PATH}/io/sdl2/snow_io_sdl2.cpp" />
-        <file name="${SNOW_SRC_PATH}/window/sdl2/snow_window_sdl2.cpp"/>
-        <file name="${SNOW_SRC_PATH}/input/sdl2/snow_input_sdl2.cpp"/>
+         <file name="${SNOW_SRC_PATH}/snow/sdl2/snow_core_sdl2.cpp" />
+         <file name="${SNOW_SRC_PATH}/io/sdl2/snow_io_sdl2.cpp" />
+         <file name="${SNOW_SRC_PATH}/window/sdl2/snow_window_sdl2.cpp"/>
+         <file name="${SNOW_SRC_PATH}/input/sdl2/snow_input_sdl2.cpp"/>
 
             <!-- platform specific helpers -->
         <file name="${SNOW_SRC_PATH}/platform/windows/snow_windows_window_sdl2.cpp"          if="windows"/>
@@ -171,13 +146,13 @@
 
    <!-- Porting specific helper only -->
 
-   <section if="SNOW_USE_EMPTY_PLATFORM">
+      <section if="SNOW_USE_EMPTY_PLATFORM">
 
-      <compilerflag value="-DSNOW_USE_EMPTY_PLATFORM" />
+         <compilerflag value="-DSNOW_USE_EMPTY_PLATFORM" />
 
-      <file name="${SNOW_SRC_PATH}/snow/empty/snow_empty_platform.cpp"/>
+         <file name="${SNOW_SRC_PATH}/snow/empty/snow_empty_platform.cpp"/>
 
-   </section>
+      </section>
 
    <!-- Platform specific sources -->
 
@@ -188,6 +163,7 @@
       </section>
 
       <section if="linux">
+         <compilerflag value="-DSNOW_NO_GTK" if="SNOW_NO_GTK"/>
          <file name="${SNOW_SRC_PATH}/platform/linux/snow_linux.cpp"/>
          <file name="${SNOW_SRC_PATH}/platform/linux/snow_linux_filewatch.cpp"/>
          <file name="${SNOW_SRC_PATH}/platform/linux/snow_linux_filedialogs.cpp"/>
@@ -228,9 +204,6 @@
 
       </section>
 
-      <section if="SNOW_LIB_SDL">
-         <include name="${NATIVE_TOOLKIT_PATH}/sdl/defines.xml" />
-      </section>
 
       <section if="SNOW_LIB_STB_IMAGE">
          <include name="${NATIVE_TOOLKIT_PATH}/stb_image/defines.xml" />
@@ -260,7 +233,6 @@
       <outdir name="${OUT_DIR}/${BINDIR}" />
 
 <!-- Build the libs -->
-      <files id="native-toolkit-glew"           if="SNOW_LIB_GLEW"/>
       <files id="native-toolkit-curl"           if="SNOW_LIB_CURL"/>
       <files id="native-toolkit-lzma"           if="SNOW_LIB_LZMA"/>
       <files id="native-toolkit-ogg"            if="SNOW_LIB_OGG"/>

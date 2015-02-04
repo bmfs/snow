@@ -23,9 +23,30 @@
 
       <!-- can disable opengl include / linking here -->
    <set name="SNOW_USE_OPENGL"  value="1"/>
+      <!-- are we using OpenAL? -->
+   <set name="SNOW_USE_OPENAL"  value="1"/>
+
+      <!-- are we using SDL? -->
+   <set name="SNOW_USE_SDL"     value="1"/>
+   <set name="SNOW_LIB_SDL"     value="1" if="SNOW_USE_SDL"/>
+   <set name="NATIVE_TOOLKIT_SDL_STATIC" value="1" if="SNOW_USE_SDL"/>
+
       <!-- sometimes glew needs to be disabled because it can make null function pointers -->
    <set name="SNOW_LIB_GLEW" value="1" unless="android || ios"/>
 
+<!-- Tertiary libs -->
+
+      <!-- LINUX: Disable this if you need file dialogs for gtk, save/load dialogs will not show without it turned off-->
+    <set name="SNOW_NO_GTK" value="1" />
+
+<!-- Core snow configs -->
+
+   <set name="SNOW_CORE_LOOP"   value="1"     unless="ios"/>
+
+<!-- Porting only -->
+
+      <!-- Don't define this unless trying to test/implement the empty platform porting helpers -->
+   <!-- <set name="SNOW_USE_EMPTY_PLATFORM" value="1" /> -->
 
 <!-- Other -->
 

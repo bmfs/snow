@@ -1,0 +1,17 @@
+<xml>
+
+<!-- include all default snow flags/defines -->
+
+   <include name="include.snow.common.xml" />
+
+    <files id='haxe' if="SNOW_USE_OPENGL">
+
+    	<section if="SNOW_USE_SDL">
+        	<compilerflag value="-DSNOW_USE_SDL"/>
+        	<include name="${SNOW_PROJECT_ROOT}/include.defines.sdl.xml" />
+        </section>
+
+        <include name="${SNOW_PROJECT_ROOT}/include.defines.opengl.xml" />
+    </files>
+
+</xml>

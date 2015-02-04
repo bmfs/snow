@@ -1,0 +1,20 @@
+<xml>
+    
+    <include name="include.snow.common.xml" />
+
+    <compilerflag value="-DSNOW_USE_SDL" />
+
+        <!-- per platform configs preconfigured -->
+    <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/"/>
+    <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/default/"    unless="windows || mac || linux"/>
+    <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/linux/"      if="linux"/>
+    <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/windows/"    if="windows"/>
+    <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/include/configs/mac/"        if="mac"/>
+
+    <include name="${NATIVE_TOOLKIT_PATH}/sdl/defines.xml" />
+
+    <!-- will find a better place but is needed -->
+    <include name="${NATIVE_TOOLKIT_PATH}/glew/defines.xml" if="SNOW_LIB_GLEW" />
+    <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/glew/include/" if="SNOW_LIB_GLEW"/>
+
+</xml>

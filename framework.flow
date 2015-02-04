@@ -156,7 +156,7 @@
       }
     },
 
-    "android || linux" : {
+    "android" : {
       build : {
         defines : ['snow_dynamic_link']
       }
@@ -197,7 +197,7 @@
       }
     },
 
-    "snow_web_psd" : {
+    "snow_web && snow_web_psd" : {
       app : {
         web : {
           libs : {

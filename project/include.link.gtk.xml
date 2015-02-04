@@ -2,9 +2,6 @@
 
     <!-- Duplicates will be resolved in future -->
 
-    <!--  Enable this to remove gtk dependency, but save/load dialogs will not show -->
-    <!-- <set name="SNOW_NO_GTK" value="1" /> -->
-
     <!-- are we using gtk3 or 2 for file dialogs, or none? -->
    <!-- <set name="SNOW_USE_GTK2"    value="1"/> -->
    <set name="SNOW_USE_GTK3"    value="1"/>
@@ -53,19 +50,7 @@
 
 <section unless="SNOW_NO_GTK">
 
-    <!-- include at build time for snow lib -->
-    <files id="snow">
-        <files id="gtk"/>
-    </files>
-
-    <!-- include at build time for application -->
-    <files id="haxe">
-        <files id="gtk"/>
-    </files>
-
-
    <!-- Linker specifics -->
-
 
     <target id='haxe'>
 

@@ -11,10 +11,6 @@
 
 #include <string>
 
-#ifndef SNOW_NO_GTK
-    #include <gtk/gtk.h>
-#endif //SNOW_NO_GTK
-
 namespace snow {
 
     namespace core {
