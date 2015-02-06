@@ -12,7 +12,6 @@
     <target id='haxe'>
 
         <!-- <files id="native-toolkit-glew" if="SNOW_LIB_GLEW" /> -->
-        <lib name="${SNOW_PATH}/ndll/${BINDIR}/snow.ndll"/>
 
         <section>
             <section if="mac">
