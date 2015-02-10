@@ -1,9 +1,6 @@
 package snow.input.gamepad;
 
-typedef GamepadAxis = {
-	var x:Int;
-	var y:Int;
-}
+import snow.input.gamepad.Gamepad;
 
 class XBox360Buttons
 {
