@@ -38,14 +38,36 @@ import snow.window.WindowSystem;
         override public function destroy() {
         } //destroy
 
-        override public function create( render_config:RenderConfig, config:WindowConfig, on_created: WindowHandle->Int->WindowingConfig->Void ) {
+        function _copy_config( _config:WindowConfig ) {
+            return {
+                borderless:_config.borderless,
+                fullscreen:_config.fullscreen,
+                fullscreen_desktop:_config.fullscreen_desktop,
+                height:_config.height,
+                no_input:_config.no_input,
+                resizable:_config.resizable,
+                title:_config.title,
+                width:_config.width,
+                x:_config.x,
+                y:_config.y
+            }
+        }
+
+        override public function create( render_config:RenderConfig, _config:WindowConfig, on_created: WindowHandle->Int->WindowingConfig->Void ) {
 
             var _window_id = seq_window;
             var _handle : js.html.CanvasElement = js.Browser.document.createCanvasElement();
+            var config = _copy_config(_config);
 
-                    //assign the sizes
+                    //assign the initial sizes
                 _handle.width = config.width;
                 _handle.height = config.height;
+
+                if(config.fullscreen) {
+                    internal_fullscreen( _handle, config.fullscreen );
+                    config.width = _handle.width;
+                    config.height = _handle.height;
+                }
 
                     //make sure it displays nicely
                 _handle.style.display = 'block';
@@ -56,7 +78,7 @@ import snow.window.WindowSystem;
                 js.Browser.document.body.appendChild(_handle);
 
                 //:todo: These options need to be exposed and documented
-            var _gl_context = _handle.getContextWebGL({ alpha:false, premultipliedAlpha:false });
+            var _gl_context = _handle.getContextWebGL({ alpha:false, premultipliedAlpha:false, antialias: render_config.antialiasing > 0 });
                 //early out on no possible context
             if(_gl_context == null) {
                 var msg =  'WebGL is required to run this!<br/><br/>';
@@ -83,11 +105,6 @@ import snow.window.WindowSystem;
                 //set the window title to the config title if there is one
             if(config.title != null && config.title != '') {
                 js.Browser.document.title = config.title;
-            }
-
-                //if the config requests fullscreen, set it
-            if(config.fullscreen) {
-                internal_fullscreen( _handle, config.fullscreen );
             }
 
                 //tell them and give the handle for later.
